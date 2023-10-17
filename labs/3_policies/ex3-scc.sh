@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 
 GREEN='\033[0;32m'
 NC='\033[0m'
-set -euxo pipefail
+set -eux
 
 NS="scc-example"
 SA="fake-user"
