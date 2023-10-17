@@ -44,9 +44,6 @@ oc new-project "$NS"
 kubectl label ns "$NS" "scc=true"
 kubectl create serviceaccount -n "$NS" $SA
 
-green "Allow fake-user to create pods and deployments only in $NS"
-kubectl create rolebinding -n "$NS" edit --clusterrole=edit --serviceaccount="$NS":$SA
-
 # WARN alias does not work with bash
 alias kubectl-admin='kubectl -n "$NS"'
 alias kubectl-user='kubectl --as=system:serviceaccount:$NS:$SA -n "$NS"'
@@ -127,6 +124,9 @@ if [ "$EX3_SCC_FULL" = false ]
 then
     exit 0
 fi
+
+green "Allow fake-user to create pods and deployments only in $NS"
+kubectl create rolebinding -n "$NS" edit --clusterrole=edit --serviceaccount="$NS":$SA
 
 green "Try to create pod ubuntu-simple"
 kubectl-user create -f /tmp/ubuntu-simple.yaml
