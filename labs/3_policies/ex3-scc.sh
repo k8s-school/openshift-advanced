@@ -2,6 +2,7 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
+EX3_SCC_FULL="${EX3_SCC_FULL:-false}"
 
 GREEN='\033[0;32m'
 NC='\033[0m'
@@ -21,9 +22,10 @@ oc new-project "$NS"
 kubectl label ns "$NS" "scc=true"
 kubectl create serviceaccount -n "$NS" $SA
 
-# Allow fake-user to create pods and deployments
+echo -e "$GREEN Allow fake-user to create pods and deployments only in $NS $NC"
 kubectl create rolebinding -n "$NS" edit --clusterrole=edit --serviceaccount="$NS":$SA
 
+# WARN alias does not work with bash
 alias kubectl-admin='kubectl -n "$NS"'
 alias kubectl-user='kubectl --as=system:serviceaccount:$NS:$SA -n "$NS"'
 
@@ -73,6 +75,36 @@ spec:
         privileged: true
 EOF
 
+cat <<EOF > /tmp/nginx-privileged.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-privileged
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+        securityContext:
+          privileged: true
+EOF
+
+if [ "$EX3_SCC_FULL" = false ]
+then
+    exit 0
+fi
 
 echo -e "$GREEN  Try to create pod ubuntu-simple $NC"
 kubectl-user create -f /tmp/ubuntu-simple.yaml
@@ -80,8 +112,13 @@ kubectl-user create -f /tmp/ubuntu-simple.yaml
 echo -e "$GREEN Check access to scc $NC"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/restricted-v2
 
+echo -e "$GREEN Check which scc was used $NC"
 kubectl get pod ubuntu-simple -o yaml | grep -i runasuser
 kubectl get pod ubuntu-simple -o yaml | grep -i scc
+
+echo -e "$GREEN Show which SCC is required by the pod ubuntu-simple $NC"
+echo -e "$GREEN WARN: command should not display anyuid here: inconsistency $NC"
+oc adm policy scc-subject-review -f /tmp/ubuntu-simple.yaml
 
 echo -e "$GREEN  Try to create pod ubuntu-root $NC"
 if kubectl-user create -f /tmp/ubuntu-root.yaml
@@ -116,37 +153,11 @@ kubectl-user create -f /tmp/ubuntu-root.yaml
 kubectl-user create -f /tmp/ubuntu-privileged ||
     >&2 echo "EXPECTED ERROR: User '$SA' cannot create privileged container"
 
-echo -e "$GREEN Show which SCCs is required by the pod ubuntu-privileged $NC"
+echo -e "$GREEN Show which SCC is required by the pod ubuntu-privileged $NC"
 oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
 
 echo -e "$GREEN Grant access to scc hostpath-provisioner to service account $SA $NC"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA
-
-cat <<EOF > /tmp/nginx-privileged.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-privileged
-  labels:
-    app: nginx
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.7.9
-        ports:
-        - containerPort: 80
-        securityContext:
-          privileged: true
-EOF
 
 kubectl-user apply -f /tmp/nginx-privileged.yaml
 kubectl-user get pods
