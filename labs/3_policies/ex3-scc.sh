@@ -185,7 +185,7 @@ oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
 
 green "Grant access to scc hostpath-provisioner to service account $SA"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA
-kubectl-user create -f /tmp/ubuntu-privileged
+kubectl-user create -f /tmp/ubuntu-privileged.yaml
 
 kubectl-user apply -f /tmp/nginx-privileged.yaml
 kubectl-user get pods
