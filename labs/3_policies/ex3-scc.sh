@@ -154,7 +154,7 @@ green "Get scc for pod ubuntu-root"
 oc adm policy scc-subject-review -f /tmp/ubuntu-root.yaml
 
 green "Check access to scc"
-if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid ||
+if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid
 then
     >&2 echo "ERROR: User '$SA' should not be able to use scc/anyuid"
     exit 1
