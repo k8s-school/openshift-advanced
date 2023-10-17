@@ -4,8 +4,30 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 EX3_SCC_FULL="${EX3_SCC_FULL:-false}"
 
+# Color
+RED='\033[0;31m'
 GREEN='\033[0;32m'
-NC='\033[0m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+function red {
+    set +x
+    >&2 printf "${RED}$@${NC}\n"
+    set -x
+}
+
+function green {
+    set +x
+    printf "${GREEN}$@${NC}\n"
+    set -x
+}
+
+function yellow {
+    set +x
+    printf "${YELLOW}$@${NC}\n"
+    set -x
+}
+
 set -eux
 
 NS="scc-example"
@@ -21,7 +43,7 @@ oc new-project "$NS"
 kubectl label ns "$NS" "scc=true"
 kubectl create serviceaccount -n "$NS" $SA
 
-echo -e "$GREEN Allow fake-user to create pods and deployments only in $NS $NC"
+green "Allow fake-user to create pods and deployments only in $NS"
 kubectl create rolebinding -n "$NS" edit --clusterrole=edit --serviceaccount="$NS":$SA
 
 # WARN alias does not work with bash
@@ -105,39 +127,39 @@ then
     exit 0
 fi
 
-echo -e "$GREEN  Try to create pod ubuntu-simple $NC"
+green "Try to create pod ubuntu-simple"
 kubectl-user create -f /tmp/ubuntu-simple.yaml
 
-echo -e "$GREEN Check access to scc $NC"
+green "Check access to scc"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/restricted-v2
 
-echo -e "$GREEN Check which scc was used $NC"
+green "Check which scc was used"
 kubectl get pod ubuntu-simple -o yaml | grep -i runasuser
 kubectl get pod ubuntu-simple -o yaml | grep -i scc
 
-echo -e "$GREEN Show which SCC is required by the pod ubuntu-simple $NC"
-echo -e "$GREEN WARN: command should not display anyuid here: inconsistency $NC"
+green "Show which SCC is required by the pod ubuntu-simple"
+green "WARN: command should not display anyuid here: inconsistency"
 oc adm policy scc-subject-review -f /tmp/ubuntu-simple.yaml
 
-echo -e "$GREEN  Try to create pod ubuntu-root $NC"
+green "Try to create pod ubuntu-root"
 if kubectl-user create -f /tmp/ubuntu-root.yaml
 then
-    >&2 echo "ERROR: User '$SA' should not be able to create pod ubuntu root"
+    red "ERROR: User '$SA' should not be able to create pod ubuntu root"
     exit 1
 else
-    >&2 echo "EXPECTED ERROR: User '$SA' cannot create pod"
+    yellow "EXPECTED ERROR: User '$SA' cannot create pod"
 fi
 
-echo -e "$GREEN Get scc for pod ubuntu-root $NC"
+green "Get scc for pod ubuntu-root"
 oc adm policy scc-subject-review -f /tmp/ubuntu-root.yaml
 
-echo -e "$GREEN Check access to scc $NC"
+green "Check access to scc"
 if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid ||
 then
     >&2 echo "ERROR: User '$SA' should not be able to use scc/anyuid"
     exit 1
 else
-    >&2 echo "EXPECTED ERROR: User '$SA' cannot use scc/anyuid"
+    yellow "EXPECTED ERROR: User '$SA' cannot use scc/anyuid"
 fi
 
 # kubectl-admin create role scc:anyuid \
@@ -145,23 +167,23 @@ fi
 #    --resource=scc \
 #    --resource-name=anyuid
 
-echo -e "$GREEN Grant access to scc anyuid to service account $SA"
+green "Grant access to scc anyuid to service account $SA"
 # WARN: it edits a clusterrolebinding
 oc adm policy add-scc-to-user anyuid -z $SA
 
-echo -e "$GREEN Check if service account can create pod ubuntu-root $NC"
+green "Check if service account can create pod ubuntu-root"
 oc adm policy scc-review -z system:serviceaccount:"$NS":$SA -f /tmp/ubuntu-root.yaml
 
-echo -e "$GREEN Create pod ubuntu-root $NC"
+green "Create pod ubuntu-root"
 kubectl-user create -f /tmp/ubuntu-root.yaml
 
 kubectl-user create -f /tmp/ubuntu-privileged ||
     >&2 echo "EXPECTED ERROR: User '$SA' cannot create privileged container"
 
-echo -e "$GREEN Show which SCC is required by the pod ubuntu-privileged $NC"
+green "Show which SCC is required by the pod ubuntu-privileged"
 oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
 
-echo -e "$GREEN Grant access to scc hostpath-provisioner to service account $SA $NC"
+green "Grant access to scc hostpath-provisioner to service account $SA"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA
 kubectl-user create -f /tmp/ubuntu-privileged
 
