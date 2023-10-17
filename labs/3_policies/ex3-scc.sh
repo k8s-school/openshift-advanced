@@ -177,8 +177,13 @@ oc adm policy scc-review -z system:serviceaccount:"$NS":$SA -f /tmp/ubuntu-root.
 green "Create pod ubuntu-root"
 kubectl-user create -f /tmp/ubuntu-root.yaml
 
-kubectl-user create -f /tmp/ubuntu-privileged ||
-    >&2 echo "EXPECTED ERROR: User '$SA' cannot create privileged container"
+if kubectl-user create -f /tmp/ubuntu-privileged
+then
+    red "ERROR: User '$SA' should not be able to create privileged pod"
+    exit 1
+else
+    yellow "EXPECTED ERROR: User '$SA' cannot create privileged pod"
+fi
 
 green "Show which SCC is required by the pod ubuntu-privileged"
 oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
