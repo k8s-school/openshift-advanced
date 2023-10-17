@@ -13,10 +13,9 @@ SA="fake-user"
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
 kubectl delete namespace -l "scc=true"
-oc adm policy remove-scc-from-user anyuid -z $SA || echo
-oc adm policy remove-scc-from-user anyuid -z $SA || echo
-oc adm policy remove-scc-from-user hostpath-provisioner -z default || echo
-
+oc adm policy remove-scc-from-user anyuid -z $SA || echo "WARN: anyuid not allowed to $SA"
+oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || echo "WARN: hostpath-provisioner not allowed to $SA"
+oc adm policy remove-scc-from-user hostpath-provisioner -z default || echo "WARN: hostpath-provisioner not allowed to default"
 
 oc new-project "$NS"
 kubectl label ns "$NS" "scc=true"
@@ -123,7 +122,8 @@ oc adm policy scc-subject-review -f /tmp/ubuntu-simple.yaml
 echo -e "$GREEN  Try to create pod ubuntu-root $NC"
 if kubectl-user create -f /tmp/ubuntu-root.yaml
 then
-    >&2 echo "ERROR: User '$SA' should not be able to create pod ubuntu"
+    >&2 echo "ERROR: User '$SA' should not be able to create pod ubuntu root"
+    exit 1
 else
     >&2 echo "EXPECTED ERROR: User '$SA' cannot create pod"
 fi
@@ -132,8 +132,13 @@ echo -e "$GREEN Get scc for pod ubuntu-root $NC"
 oc adm policy scc-subject-review -f /tmp/ubuntu-root.yaml
 
 echo -e "$GREEN Check access to scc $NC"
-kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid ||
-    >&2 echo "EXPECTED ERROR"
+if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid ||
+then
+    >&2 echo "ERROR: User '$SA' should not be able to use scc/anyuid"
+    exit 1
+else
+    >&2 echo "EXPECTED ERROR: User '$SA' cannot use scc/anyuid"
+fi
 
 # kubectl-admin create role scc:anyuid \
 #    --verb=use \
@@ -158,6 +163,7 @@ oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
 
 echo -e "$GREEN Grant access to scc hostpath-provisioner to service account $SA $NC"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA
+kubectl-user create -f /tmp/ubuntu-privileged
 
 kubectl-user apply -f /tmp/nginx-privileged.yaml
 kubectl-user get pods
