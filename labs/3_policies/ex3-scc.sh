@@ -119,7 +119,7 @@ kubectl-user create -f /tmp/ubuntu-privileged ||
 echo -e "$GREEN Show which SCCs is required by the pod ubuntu-privileged $NC"
 oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
 
-echo -e "$GREEN Grant access to scc hostpath-provisioner to service account $SA"
+echo -e "$GREEN Grant access to scc hostpath-provisioner to service account $SA $NC"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA
 
 cat <<EOF > /tmp/nginx-privileged.yaml
