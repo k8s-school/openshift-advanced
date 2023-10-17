@@ -2,9 +2,9 @@
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
-set -euxo pipefail
 
 GREEN='\033[0;32m'
+set -euxo pipefail
 
 NS="scc-example"
 SA="fake-user"
