@@ -24,7 +24,7 @@ kubectl create serviceaccount -n "$NS" $SA
 kubectl create rolebinding -n "$NS" edit --clusterrole=edit --serviceaccount="$NS":$SA
 
 alias kubectl-admin='kubectl -n "$NS"'
-alias kubectl-user='kubectl --as=system:serviceaccount:"$NS":$SA -n "$NS"'
+alias kubectl-user='kubectl --as=system:serviceaccount:$NS:$SA -n "$NS"'
 
 cat <<EOF > /tmp/ubuntu-root.yaml
 apiVersion: v1
