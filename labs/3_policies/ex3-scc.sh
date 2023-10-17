@@ -4,6 +4,7 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 
 GREEN='\033[0;32m'
+NC='\033[0m'
 set -euxo pipefail
 
 NS="scc-example"
@@ -73,16 +74,16 @@ spec:
 EOF
 
 
-echo -e "$GREEN  Try to create pod ubuntu-simple"
+echo -e "$GREEN  Try to create pod ubuntu-simple $NC"
 kubectl-user create -f /tmp/ubuntu-simple.yaml
 
-echo -e "$GREEN Check access to scc"
+echo -e "$GREEN Check access to scc $NC"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/restricted-v2
 
 kubectl describe pod ubuntu-simple | grep -i "runasuser"
 kubectl describe pod ubuntu-simple | grep -i "scc"
 
-echo -e "$GREEN  Try to create pod ubuntu-root"
+echo -e "$GREEN  Try to create pod ubuntu-root $NC"
 if kubectl-user create -f /tmp/ubuntu-root.yaml
 then
     >&2 echo "ERROR: User '$SA' should not be able to create pod ubuntu"
@@ -90,10 +91,10 @@ else
     >&2 echo "EXPECTED ERROR: User '$SA' cannot create pod"
 fi
 
-echo -e "$GREEN Get scc for pod ubuntu-root"
+echo -e "$GREEN Get scc for pod ubuntu-root $NC"
 oc adm policy scc-subject-review -f /tmp/ubuntu-root.yaml
 
-echo -e "$GREEN Check access to scc"
+echo -e "$GREEN Check access to scc $NC"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid ||
     >&2 echo "EXPECTED ERROR"
 
@@ -106,16 +107,16 @@ echo -e "$GREEN Grant access to scc anyuid to service account $SA"
 # WARN: it edits a clusterrolebinding
 oc adm policy add-scc-to-user anyuid -z $SA
 
-echo -e "$GREEN Check if service account can create pod ubuntu-root"
+echo -e "$GREEN Check if service account can create pod ubuntu-root $NC"
 oc adm policy scc-review -z system:serviceaccount:"$NS":$SA -f /tmp/ubuntu-root.yaml
 
-echo -e "$GREEN Create pod ubuntu-root"
+echo -e "$GREEN Create pod ubuntu-root $NC"
 kubectl-user create -f /tmp/ubuntu-root.yaml
 
 kubectl-user create -f /tmp/ubuntu-privileged ||
     >&2 echo "EXPECTED ERROR: User '$SA' cannot create privileged container"
 
-echo -e "$GREEN Show which SCCs is required by the pod ubuntu-privileged"
+echo -e "$GREEN Show which SCCs is required by the pod ubuntu-privileged $NC"
 oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
 
 echo -e "$GREEN Grant access to scc hostpath-provisioner to service account $SA"
