@@ -80,8 +80,8 @@ kubectl-user create -f /tmp/ubuntu-simple.yaml
 echo -e "$GREEN Check access to scc $NC"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/restricted-v2
 
-kubectl describe pod ubuntu-simple | grep -i "runasuser"
-kubectl describe pod ubuntu-simple | grep -i "scc"
+kubectl get pod ubuntu-simple -o yaml | grep -i runasuser
+kubectl get pod ubuntu-simple -o yaml | grep -i scc
 
 echo -e "$GREEN  Try to create pod ubuntu-root $NC"
 if kubectl-user create -f /tmp/ubuntu-root.yaml
