@@ -2,28 +2,28 @@ apiVersion: machine.openshift.io/v1beta1
 kind: MachineSet
 metadata:
   labels:
-    machine.openshift.io/cluster-api-cluster: demo-l6c6b
+    machine.openshift.io/cluster-api-cluster: demo-z2jlq
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
-  name: demo-l6c6b-worker-francecentral4
+  name: demo-z2jlq-worker-francecentral4
   namespace: openshift-machine-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      machine.openshift.io/cluster-api-cluster: demo-l6c6b
-      machine.openshift.io/cluster-api-machineset: demo-l6c6b-worker-francecentral4
+      machine.openshift.io/cluster-api-cluster: demo-z2jlq
+      machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-francecentral4
   template:
     metadata:
       labels:
-        machine.openshift.io/cluster-api-cluster: demo-l6c6b
+        machine.openshift.io/cluster-api-cluster: demo-z2jlq
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: demo-l6c6b-worker-francecentral4
+        machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-francecentral4
     spec:
       metadata:
         labels:
-          machine.openshift.io/cluster-api-machineset: demo-l6c6b-worker-francecentral4
+          machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-francecentral4
           node-role.kubernetes.io/worker: ""
       providerSpec:
         value:
@@ -34,13 +34,13 @@ spec:
           image:
             offer: ""
             publisher: ""
-            resourceID: /resourceGroups/demo-l6c6b-rg/providers/Microsoft.Compute/galleries/gallery_demo_l6c6b/images/demo-l6c6b-gen2/versions/latest
+            resourceID: /resourceGroups/demo-z2jlq-rg/providers/Microsoft.Compute/galleries/gallery_demo_z2jlq/images/demo-z2jlq-gen2/versions/latest
             sku: ""
             version: ""
           internalLoadBalancer: ""
           kind: AzureMachineProviderSpec
           location: francecentral
-          managedIdentity: demo-l6c6b-identity
+          managedIdentity: demo-z2jlq-identity
           metadata:
           natRule: null
           networkResourceGroup: ""
@@ -51,12 +51,12 @@ spec:
             osType: Linux
           publicIP: false
           publicLoadBalancer: ""
-          resourceGroup: demo-l6c6b-rg
+          resourceGroup: demo-z2jlq-rg
           sshPrivateKey: ""
           sshPublicKey: ""
-          subnet: demo-l6c6b-worker-subnet
+          subnet: demo-z2jlq-worker-subnet
           userDataSecret:
             name: worker-user-data
           vmSize: Standard_D4s_v3
-          vnet: demo-l6c6b-vnet
+          vnet: demo-z2jlq-vnet
           zone: "1"
