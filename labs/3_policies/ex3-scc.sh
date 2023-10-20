@@ -41,10 +41,11 @@ oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || echo "WARN: ho
 oc adm policy remove-scc-from-user hostpath-provisioner -z default || echo "WARN: hostpath-provisioner not allowed to default"
 
 oc new-project "$NS"
-kubectl label ns "$NS" "scc=true"
+kubectl label ns "$NS" "scc=id-$ID"
 kubectl create serviceaccount -n "$NS" $SA
 
 # WARN alias does not work with bash
+shopt -s expand_aliases
 alias kubectl-admin='kubectl -n "$NS"'
 alias kubectl-user='kubectl --as=system:serviceaccount:$NS:$SA -n "$NS"'
 
