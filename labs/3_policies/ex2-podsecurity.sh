@@ -1,5 +1,23 @@
 #!/bin/bash
 
+function red {
+    set +x
+    >&2 printf "${RED}$@${NC}\n"
+    set -x
+}
+
+function green {
+    set +x
+    printf "${GREEN}$@${NC}\n"
+    set -x
+}
+
+function yellow {
+    set +x
+    printf "${YELLOW}$@${NC}\n"
+    set -x
+}
+
 set -euxo pipefail
 shopt -s expand_aliases
 
