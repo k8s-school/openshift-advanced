@@ -35,7 +35,7 @@ NS="scc-example-$ID"
 SA="fake-user"
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
-kubectl delete namespace -l "scc=true"
+kubectl delete namespace -l "scc=id-$ID"
 oc adm policy remove-scc-from-user anyuid -z $SA || echo "WARN: anyuid not allowed to $SA"
 oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || echo "WARN: hostpath-provisioner not allowed to $SA"
 oc adm policy remove-scc-from-user hostpath-provisioner -z default || echo "WARN: hostpath-provisioner not allowed to default"
