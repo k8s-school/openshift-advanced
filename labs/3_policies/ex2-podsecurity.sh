@@ -36,8 +36,9 @@ kubectl delete namespace -l "podsecurity=enabled"
 NS="verify-pod-security"
 
 green "Confirm Pod Security is enabled v1"
-API_SERVER_POD=$(kubectl get pods -n openshift-kube-apiserver -l apiserver=true -o jsonpath='{.items[0].metadata.name}')
-kubectl -n openshift-kube-apiserver exec "$API_SERVER_POD" -t -- kube-apiserver -h | grep "default enabled plugins" | grep "PodSecurity"
+# API_SERVER_POD=$(kubectl get pods -n openshift-kube-apiserver -l apiserver=true -o jsonpath='{.items[0].metadata.name}')
+# kubectl -n openshift-kube-apiserver exec "$API_SERVER_POD" -t -- kube-apiserver -h | grep "default enabled plugins" | grep "PodSecurity"
+kubectl -n kube-system exec kube-apiserver-kind-control-plane -t -- kube-apiserver -h | grep "default enabled plugins" | grep "PodSecurity"
 
 
 green "Confirm Pod Security is enabled v2"
@@ -205,10 +206,10 @@ spec:
           - CHOWN
 EOF
 then
-    >&2 echo "ERROR: Should not be able to create privileged pod in namespace $NS"
+    red "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    >&2 echo "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    yellow "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
 if cat <<EOF | kubectl -n "$NS" apply -f -

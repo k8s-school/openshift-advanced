@@ -14,15 +14,8 @@ echo "PATH=\$PATH:\$HOME/go/bin" >>~/.bashrc
 echo "PATH=\$PATH:\$HOME/crc-linux-$VERSION-amd64" >>~/.bashrc
 
 # Install kubectl and setup auto-completion
-if [ ! -e "$HOME/src/k8s-toolbox" ]; then
-    echo "k8s-toolbox not found, downloading..."
-    git clone https://github.com/k8s-school/k8s-toolbox $HOME/src/k8s-toolbox
-else
-    echo "k8s-toolbox found, skipping download..."
-    cd $HOME/src/k8s-toolbox && git pull
-fi
-cd $HOME/src/k8s-toolbox && go install
-sudo $HOME/go/bin/k8s-toolbox install kubectl
+go install github.com/k8s-school/ktbx@v1.1.1-rc2
+sudo $HOME/go/bin/ktbx install kubectl
 echo 'source <(kubectl completion bash)' >>~/.bashrc
 
 # Setup kubectl aliases

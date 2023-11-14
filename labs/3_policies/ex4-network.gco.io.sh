@@ -4,32 +4,9 @@
 
 set -euxo pipefail
 
-# Color
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
-
-function red {
-    set +x
-    >&2 printf "${RED}$@${NC}\n"
-    set -x
-}
-
-function green {
-    set +x
-    printf "${GREEN}$@${NC}\n"
-    set -x
-}
-
-function yellow {
-    set +x
-    printf "${YELLOW}$@${NC}\n"
-    set -x
-}
-
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 EX4_NETWORK_FULL="${EX4_NETWORK_FULL:-false}"
+
 
 ID=0
 NS="network-$ID"
@@ -43,8 +20,8 @@ kubectl delete ns -l "policies=$NS"
 kubectl create namespace "$NS"
 kubectl label ns "$NS" "policies=$NS"
 
-green "Install one postgresql pod with helm and add label "tier:database" to master pod"
-green "Disable data persistence"
+# Exercice: Install one postgresql pod with helm and add label "tier:database" to master pod
+# Disable data persistence
 helm delete pgsql --namespace "$NS" || echo "WARN pgsql release not found"
 
 helm repo add bitnami https://charts.bitnami.com/bitnami || echo "Failed to add bitnami repo"
@@ -52,16 +29,14 @@ helm repo update
 
 helm install --version 11.9.1 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false"
 
-green "Install nginx pod external"
+# Install nginx pods
 kubectl run -n "$NS" external --image=nginx -l "app=external"
-green "Install nginx pod webserver"
 kubectl run -n "$NS" nginx --image=nginx -l "tier=webserver"
 
 kubectl wait --timeout=60s -n "$NS" --for=condition=Ready pods external
 
 kubectl expose -n "$NS" pod external --type=NodePort --port 80 --name=external
-
-green "Install netcat, ping, netstat and ps in these pods"
+# Install netcat, ping, netstat and ps in these pods
 kubectl exec -n "$NS" -it external -- \
     sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools procps tcpdump"
 
@@ -69,22 +44,25 @@ kubectl wait --timeout=60s -n "$NS" --for=condition=Ready pods nginx
 kubectl exec -n "$NS" -it nginx -- \
     sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools procps tcpdump"
 
-green "Wait for pgsql pods to be ready"
+# Wait for pgsql pods to be ready
 kubectl wait --for=condition=Ready -n "$NS" pods -l app.kubernetes.io/instance=pgsql
 
 # then check what happen with no network policies defined
-red "-------------------"
-red "NO NETWORK POLICIES"
-red "-------------------"
+echo "-------------------"
+echo "NO NETWORK POLICIES"
+echo "-------------------"
 EXTERNAL_IP=$(kubectl get pods -n "$NS" external -o jsonpath='{.status.podIP}')
 PGSQL_IP=$(kubectl get pods -n "$NS" pgsql-postgresql-0 -o jsonpath='{.status.podIP}')
-green "Try questions"
+echo "XXXXXXXXXXXXXXXXXXXXXXXxx DEBUG"
+kubectl get svc -n "$NS"
+kubectl get endpoints -n "$NS"
+echo "XXXXXXXXXXXXXXXXXXXXXXXxx DEBUG"
 kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv ${PGSQL_IP} 5432
 kubectl exec -n "$NS" nginx -- netcat -q 2 -zv pgsql-postgresql 5432
 kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv $EXTERNAL_IP 80
 kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 443
 
-green "EXERCICE: Secure communication between webserver and database, and test (webserver, database, external, outside)"
+echo "EXERCICE: Secure communication between webserver and database, and test (webserver, database, external, outside)"
 
 if [ "$EX4_NETWORK_FULL" = false ]
 then
