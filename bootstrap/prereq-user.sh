@@ -12,7 +12,6 @@ mkdir -p $HOME/src
 
 echo "PATH=\$PATH:\$HOME/go/bin" >>~/.bashrc
 echo "PATH=\$PATH:\$HOME/crc-linux-$VERSION-amd64" >>~/.bashrc
-. ~/.bashrc
 
 # Install kubectl and setup auto-completion
 go install github.com/k8s-school/ktbx@v1.1.1-rc2
