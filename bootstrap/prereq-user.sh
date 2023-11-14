@@ -12,11 +12,12 @@ mkdir -p $HOME/src
 
 echo "PATH=\$PATH:\$HOME/go/bin" >>~/.bashrc
 echo "PATH=\$PATH:\$HOME/crc-linux-$VERSION-amd64" >>~/.bashrc
+. ~/.bashrc
 
 # Install kubectl and setup auto-completion
-mkdir -p $HOME/.kube
 go install github.com/k8s-school/ktbx@v1.1.1-rc2
 sudo cp $(which ktbx) "/usr/local/bin"
+ktbx install kind
 ktbx install kubectl
 echo 'source <(kubectl completion bash)' >>~/.bashrc
 
@@ -25,7 +26,9 @@ curl -Lo $HOME/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >>~/.bashrc
 
 # SELinux setup
+mkdir -p $HOME/.kube
+mkdir -p $HOME/.ktbx/homefs
 chcon -Rt svirt_sandbox_file_t $HOME/.kube
 chcon -Rt svirt_sandbox_file_t $HOME/.ktbx/homefs
-sudo  chcon -Rt svirt_sandbox_file_t /etc/group
-sudo  chcon -Rt svirt_sandbox_file_t /etc/passwd
+sudo chcon -Rt svirt_sandbox_file_t /etc/group
+sudo chcon -Rt svirt_sandbox_file_t /etc/passwd
