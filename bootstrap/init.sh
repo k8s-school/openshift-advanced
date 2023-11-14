@@ -22,6 +22,7 @@ sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_c
 systemctl restart sshd
 
 # Disable SELinux
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 setenforce Permissive
 
 
