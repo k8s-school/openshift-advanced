@@ -21,4 +21,7 @@ echo "Setup sshd"
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/50-cloud-init.conf
 systemctl restart sshd
 
+# Disable SELinux
+setenforce Permissive
+
 
