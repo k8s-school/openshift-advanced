@@ -32,14 +32,14 @@ done
 bootstrap_dir="/home/$OPENSHIFT_USER/openshift-advanced/bootstrap"
 
 ssh root@"$ip_address" -- "curl  -s https://raw.githubusercontent.com/k8s-school/openshift-advanced/main/bootstrap/init.sh | bash"
-ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-setup.sh'"
-ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/prereq-user.sh'"
-ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-start.sh'"
 ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/install_docker.sh'"
+ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/prereq-user.sh'"
+ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-setup.sh'"
+ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-start.sh'"
 
-demo_dir="/home/$OPENSHIFT_USER/openshift-advanced/demo"
-ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$demo_dir/init.sh'"
-ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$demo_dir/fink-install.sh'"
+# demo_dir="/home/$OPENSHIFT_USER/openshift-advanced/demo"
+# ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$demo_dir/init.sh'"
+# ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$demo_dir/fink-install.sh'"
 
 echo "Connect to the server with below command:"
 echo "ssh root@$ip_address"
