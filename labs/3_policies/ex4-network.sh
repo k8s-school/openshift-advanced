@@ -50,9 +50,9 @@ ink "Wait for pgsql pods to be ready"
 kubectl wait --for=condition=Ready -n "$NS" pods -l app.kubernetes.io/instance=pgsql
 
 ink "then check what happen with no network policies defined"
-ink "-------------------"
+ink "++++++++++++++++++++"
 ink "NO NETWORK POLICIES"
-ink "-------------------"
+ink "++++++++++++++++++++"
 EXTERNAL_IP=$(kubectl get pods -n "$NS" external -o jsonpath='{.status.podIP}')
 PGSQL_IP=$(kubectl get pods -n "$NS" pgsql-postgresql-0 -o jsonpath='{.status.podIP}')
 kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv ${PGSQL_IP} 5432
@@ -79,9 +79,9 @@ ink "Set default deny network policies"
 kubectl apply -n "$NS" -f $DIR/resource/default-deny.yaml
 
 ink "Play and test network connections after each step"
-ink "---------------------"
+ink "+---------------------+"
 ink "WITH NETWORK POLICIES"
-ink "---------------------"
+ink "+---------------------+"
 kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv ${PGSQL_IP} 5432
 kubectl exec -n "$NS" nginx -- netcat -w 2 -nzv $EXTERNAL_IP 80 && ink -r "ERROR this command should have failed"
 kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432 && ink -r "ERROR this command should have failed"
