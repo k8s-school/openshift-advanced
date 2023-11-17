@@ -73,13 +73,13 @@ kubectl exec pod-with-defaults -- ls -la / | grep tmp
 POD="pod-drop-chown-capability"
 kubectl apply -f "$POD.yaml"
 kubectl wait --timeout=60s --for=condition=Ready pods "$POD"
-kubectl exec "$POD" -- chown guest /tmp && >&2 echo "ERROR this command should have failed"
+kubectl exec "$POD" -- chown guest /tmp && ink -r "ERROR this command should have failed"
 
 # 13.2.6 Preventing processes from writing to the container’s filesystem
 POD="pod-with-readonly-filesystem"
 kubectl apply -f "$POD.yaml"
 kubectl wait --timeout=60s --for=condition=Ready pods "$POD"
-kubectl exec "$POD" -- touch /new-file && >&2 echo "ERROR this command should have failed"
+kubectl exec "$POD" -- touch /new-file && ink -r "ERROR this command should have failed"
 kubectl exec -it "$POD" -- touch /volume/newfile
 kubectl exec -it "$POD" -- ls -la /volume/newfile
 
@@ -89,7 +89,7 @@ kubectl apply -f "$POD.yaml"
 kubectl wait --timeout=60s --for=condition=Ready pods "$POD"
 kubectl exec -it "$POD"  -c first -- sh -c "id && \
     ls -l / | grep volume && \
-    echo foo > /volume/foo && \
+    ink foo > /volume/foo && \
     ls -l /volume && \
-    echo foo > /tmp/foo && \
+    ink foo > /tmp/foo && \
     ls -l /tmp"

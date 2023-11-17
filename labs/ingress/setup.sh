@@ -24,10 +24,10 @@ kubectl  wait -n "$NSAPP" --for=condition=available deployment web
 kubectl apply -n "$NSAPP" -f $DIR/example-ingress.yaml
 kubectl get -n "$NSAPP" ingress
 
-echo "INFO: Add application URL to DNS"
+ink "INFO: Add application URL to DNS"
 export server_ip=$(ip add show eth0 | grep -w inet | awk '{print $2;exit}' | cut -d'/' -f1)
 go install github.com/txn2/txeh/txeh@v1.5.4
 sudo $(which txeh) add "$server_ip" hello-world.info
 
-echo "INFO: access the application via ingress"
+ink "INFO: access the application via ingress"
 curl -k https://hello-world.info

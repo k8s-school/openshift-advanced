@@ -46,7 +46,7 @@ kubectl create namespace "$NS"
 kubectl label ns "$NS" "podsecurity=enabled"
 kubectl label namespace "$NS" pod-security.kubernetes.io/enforce=restricted
 # The following command does NOT create a workload (--dry-run=server)
-kubectl -n "$NS" run test --dry-run=server --image=busybox --privileged || >&2 echo "EXPECTED ERROR"
+kubectl -n "$NS" run test --dry-run=server --image=busybox --privileged || ink -y "EXPECTED ERROR"
 kubectl delete namespace "$NS"
 
 kubectl create namespace "$NS"
@@ -145,7 +145,7 @@ else
 fi
 
 # Let's apply the baseline Pod Security level and try again.
-echo "Enforces a \"baseline\" security policy and warns / audits on restricted"
+ink "Enforces a \"baseline\" security policy and warns / audits on restricted"
 kubectl label --overwrite ns verify-pod-security \
   pod-security.kubernetes.io/enforce=baseline \
   pod-security.kubernetes.io/warn=restricted \
@@ -171,9 +171,9 @@ spec:
           - CHOWN
 EOF
 then
-    echo "Create privileged pod in namespace $NS"
+    ink "Create privileged pod in namespace $NS"
 else
-    >&2 echo "ERROR: No able to create privileged pod in namespace $NS"
+    ink -r "ERROR: No able to create privileged pod in namespace $NS"
     exit 1
 fi
 
@@ -181,7 +181,7 @@ kubectl -n "$NS" delete pod busybox-baseline
 
 # Restricted level and workload
 
-echo "Enforces a \"restricted\" security policy and audits on restricted"
+ink "Enforces a \"restricted\" security policy and audits on restricted"
 kubectl label --overwrite ns verify-pod-security \
   pod-security.kubernetes.io/enforce=restricted \
   pod-security.kubernetes.io/audit=restricted
@@ -238,14 +238,14 @@ spec:
           - NET_BIND_SERVICE
 EOF
 then
-    echo "Create pod in namespace $NS"
+    ink "Create pod in namespace $NS"
 else
-    >&2 echo "ERROR: No able to create pod in namespace $NS"
+    ink -r "ERROR: No able to create pod in namespace $NS"
     exit 1
 fi
 
-echo "Use 'crictl inspect' to check pods on nodes"
-echo "Use 'oc debug node/node-name and crictl inspect' to check pods on nodes"
+ink "Use 'crictl inspect' to check pods on nodes"
+ink "Use 'oc debug node/node-name and crictl inspect' to check pods on nodes"
 
 node=$(kubectl get pod -n verify-pod-security busybox-restricted -o "jsonpath={.spec.nodeName}")
 

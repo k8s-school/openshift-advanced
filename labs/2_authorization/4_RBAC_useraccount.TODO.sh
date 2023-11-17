@@ -31,7 +31,7 @@ kubectl config set-context developer-context --cluster="$KIND_CLUSTER_NAME" --na
     --user=employee
 
 kubectl --context=employee-context get pods || \
-    >&2 echo "EXPECTED ERROR: failed to get pods"
+    ink -r "EXPECTED ERROR: failed to get pods"
 
 # Use 'apply' instead of 'create' to create
 # 'role-deployment-manager' and 'rolebinding-deployment-manager'
@@ -43,11 +43,11 @@ kubectl --context=employee-context run --image=ubuntu -- sleep infinity
 kubectl --context=employee-context get pods
 
 kubectl --context=employee-context get pods --namespace=default || \
-    >&2 echo "EXPECTED ERROR: failed to get pods"
+    ink -r "EXPECTED ERROR: failed to get pods"
 
 # With employee user, try to run a shell in a pod in ns 'office'
 kubectl --context=employee-context run -it --image=busybox shell sh || \
-    >&2 echo "EXPECTED ERROR: failed to start shell"
+    ink -r "EXPECTED ERROR: failed to start shell"
 
 # Create a local PersistentVolume on kube-node-1:/data/disk2
 # with label "RBAC=user"
@@ -87,7 +87,7 @@ kubectl describe pv task-pv
 # With employee user, create a PersistentVolumeClaim which use pv-1 in ns 'foo'
 # See https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/#create-a-persistentvolumeclaim
 kubectl --context=employee-context apply -f "$DIR/manifest/pvc.yaml" ||
-    >&2 echo "EXPECTED ERROR: failed to create pvc"
+    ink -r "EXPECTED ERROR: failed to create pvc"
 
 # Edit role-deployment-manager.yaml to enable pvc management
 kubectl apply -f "$DIR/manifest/role-deployment-manager-pvc.yaml"
@@ -107,14 +107,14 @@ kubectl apply -n office -f https://k8s.io/examples/pods/storage/pv-pod.yaml
 kubectl  wait --for=condition=Ready -n office --timeout=180s pods task-pv-pod
 
 # Launch a command in task-pv-pod
-kubectl exec -it task-pv-pod echo "SUCCESS in lauching command in task-pv-pod"
+kubectl exec -it task-pv-pod echo "SUCCESS in launching command in task-pv-pod"
 
 # Switch back to context kubernetes-admin@kubernetes
 kubectl config use-context "$KIND_CONTEXT"
 
 # Try to get pv using 'employee-context'
 kubectl --context=employee-context get pv ||
-    >&2 echo "EXPECTED ERROR: failed to get pv"
+    ink -y "EXPECTED ERROR: failed to get pv"
 
 # Create a 'clusterrolebinding' between clusterrole=pv-reader and group=$ORG
 kubectl create clusterrolebinding "pv-reader-$ORG" --clusterrole=pv-reader --group="$ORG"

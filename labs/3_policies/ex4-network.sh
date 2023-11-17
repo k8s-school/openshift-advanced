@@ -45,9 +45,9 @@ kubectl label ns "$NS" "policies=$NS"
 
 green "Install one postgresql pod with helm and add label "tier:database" to master pod"
 green "Disable data persistence"
-helm delete pgsql --namespace "$NS" || echo "WARN pgsql release not found"
+helm delete pgsql --namespace "$NS" || ink -y "WARN pgsql release not found"
 
-helm repo add bitnami https://charts.bitnami.com/bitnami || echo "Failed to add bitnami repo"
+helm repo add bitnami https://charts.bitnami.com/bitnami || ink "Failed to add bitnami repo"
 helm repo update
 
 helm install --version 11.9.1 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false"
@@ -103,13 +103,13 @@ kubectl apply -n "$NS" -f $DIR/resource/egress-www-db.yaml
 kubectl apply -n "$NS" -f $DIR/resource/default-deny.yaml
 
 # Play and test network connections after each step
-echo "---------------------"
-echo "WITH NETWORK POLICIES"
-echo "---------------------"
+ink "---------------------"
+ink "WITH NETWORK POLICIES"
+ink "---------------------"
 kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv ${PGSQL_IP} 5432
-kubectl exec -n "$NS" nginx -- netcat -w 2 -nzv $EXTERNAL_IP 80 && >&2 echo "ERROR this command should have failed"
-kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432 && >&2 echo "ERROR this command should have failed"
-kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 80 && >&2 echo "ERROR this command should have failed"
+kubectl exec -n "$NS" nginx -- netcat -w 2 -nzv $EXTERNAL_IP 80 && ink -r "ERROR this command should have failed"
+kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432 && ink -r "ERROR this command should have failed"
+kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 80 && ink -r "ERROR this command should have failed"
 # Ip for www.w3.org
-kubectl exec -n "$NS" external -- netcat -w 2 -nzv 128.30.52.100 80 && >&2 echo "ERROR this command should have failed"
+kubectl exec -n "$NS" external -- netcat -w 2 -nzv 128.30.52.100 80 && ink -r "ERROR this command should have failed"
 

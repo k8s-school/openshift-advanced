@@ -30,7 +30,7 @@ kubectl wait -n bar --for=condition=Ready pods shell
 # Access svc 'foo:kuard-service' from pod 'bar:shell'
 while ! kubectl exec -it -n bar shell -- curl --connect-timeout 2 http://kuard-service.foo:8080
 do
-    echo "Waiting for kuard svc"
+    ink "Waiting for kuard svc"
     sleep 2
 done
 # Set the namespace preference to 'foo'

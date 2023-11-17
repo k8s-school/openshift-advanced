@@ -36,9 +36,9 @@ SA="fake-user"
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
 kubectl delete namespace -l "scc=id-$ID"
-oc adm policy remove-scc-from-user anyuid -z $SA || echo "WARN: anyuid not allowed to $SA"
-oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || echo "WARN: hostpath-provisioner not allowed to $SA"
-oc adm policy remove-scc-from-user hostpath-provisioner -z default || echo "WARN: hostpath-provisioner not allowed to default"
+oc adm policy remove-scc-from-user anyuid -z $SA || ink -y "WARN: anyuid not allowed to $SA"
+oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || ink -y "WARN: hostpath-provisioner not allowed to $SA"
+oc adm policy remove-scc-from-user hostpath-provisioner -z default || ink -y "WARN: hostpath-provisioner not allowed to default"
 
 oc new-project "$NS"
 kubectl label ns "$NS" "scc=id-$ID"
@@ -158,7 +158,7 @@ oc adm policy scc-subject-review -f /tmp/ubuntu-root.yaml
 green "Check access to scc"
 if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid
 then
-    >&2 echo "ERROR: User '$SA' should not be able to use scc/anyuid"
+    ink -r "ERROR: User '$SA' should not be able to use scc/anyuid"
     exit 1
 else
     yellow "EXPECTED ERROR: User '$SA' cannot use scc/anyuid"
