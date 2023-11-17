@@ -27,9 +27,10 @@ echo 'source <(kubectl completion bash)' >>~/.bashrc
 curl -Lo $HOME/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >>~/.bashrc
 
-# SELinux setup
 mkdir -p $HOME/.kube
 mkdir -p $HOME/.ktbx/homefs
+
+# SELinux setup
 chcon -Rt svirt_sandbox_file_t $HOME/.kube
 chcon -Rt svirt_sandbox_file_t $HOME/.ktbx/homefs
 sudo chcon -Rt svirt_sandbox_file_t /etc/group
