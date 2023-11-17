@@ -16,6 +16,9 @@ echo "PATH=\$PATH:\$HOME/crc-linux-$VERSION-amd64" >>~/.bashrc
 # Install kubectl and setup auto-completion
 go install github.com/k8s-school/ktbx@v1.1.1-rc2
 sudo cp "$HOME/go/bin/ktbx" "/usr/local/bin"
+go install -v github.com/k8s-school/ink@v0.0.1-rc1
+sudo cp "$HOME/go/bin/ink" "/usr/local/bin"
+
 ktbx install kind
 ktbx install kubectl
 echo 'source <(kubectl completion bash)' >>~/.bashrc
