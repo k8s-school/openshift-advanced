@@ -8,6 +8,8 @@ set -x
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
+. $DIR/../conf.version.sh
+
 NS="baz"
 
 # Delete all namespaces, clusterrole, clusterrolebinding, pv

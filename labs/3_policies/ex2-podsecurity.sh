@@ -1,32 +1,12 @@
 #!/bin/bash
 
-
-# Color
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
-
-function red {
-    set +x
-    >&2 printf "${RED}$@${NC}\n"
-    set -x
-}
-
-function green {
-    set +x
-    printf "${GREEN}$@${NC}\n"
-    set -x
-}
-
-function yellow {
-    set +x
-    printf "${YELLOW}$@${NC}\n"
-    set -x
-}
-
 set -euxo pipefail
 shopt -s expand_aliases
+
+DIR=$(cd "$(dirname "$0")"; pwd -P)
+
+. $DIR/../conf.version.sh
+
 
 readonly DIR=$(cd "$(dirname "$0")"; pwd -P)
 
@@ -35,24 +15,24 @@ readonly DIR=$(cd "$(dirname "$0")"; pwd -P)
 kubectl delete namespace -l "podsecurity=enabled"
 NS="verify-pod-security"
 
-green "Confirm Pod Security is enabled v1"
+ink "Confirm Pod Security is enabled v1"
 # API_SERVER_POD=$(kubectl get pods -n openshift-kube-apiserver -l apiserver=true -o jsonpath='{.items[0].metadata.name}')
 # kubectl -n openshift-kube-apiserver exec "$API_SERVER_POD" -t -- kube-apiserver -h | grep "default enabled plugins" | grep "PodSecurity"
 kubectl -n kube-system exec kube-apiserver-kind-control-plane -t -- kube-apiserver -h | grep "default enabled plugins" | grep "PodSecurity"
 
 
-green "Confirm Pod Security is enabled v2"
+ink "Confirm Pod Security is enabled v2"
 kubectl create namespace "$NS"
 kubectl label ns "$NS" "podsecurity=enabled"
 kubectl label namespace "$NS" pod-security.kubernetes.io/enforce=restricted
 # The following command does NOT create a workload (--dry-run=server)
-kubectl -n "$NS" run test --dry-run=server --image=busybox --privileged || ink -y "EXPECTED ERROR"
+kubectl -n "$NS" run test --dry-run=server --image=busybox:$BUSYBOX_VERSION --privileged || ink -y "EXPECTED ERROR"
 kubectl delete namespace "$NS"
 
 kubectl create namespace "$NS"
 kubectl label ns "$NS" "podsecurity=enabled"
 
-green "Enforces a \"restricted\" security policy and audits on restricted"
+ink "Enforces a \"restricted\" security policy and audits on restricted"
 kubectl label --overwrite ns verify-pod-security \
   pod-security.kubernetes.io/enforce=restricted \
   pod-security.kubernetes.io/audit=restricted
@@ -74,13 +54,13 @@ spec:
       allowPrivilegeEscalation: true
 EOF
 then
-    red "ERROR: Should not be able to create privileged pod in namespace $NS"
+    ink -r "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    yellow "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    ink -y"EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
-green "Enforces a \"privileged\" security policy and warns / audits on baseline"
+ink "Enforces a \"privileged\" security policy and warns / audits on baseline"
 kubectl label --overwrite ns verify-pod-security \
   pod-security.kubernetes.io/enforce=privileged \
   pod-security.kubernetes.io/warn=baseline \
@@ -111,7 +91,7 @@ kubectl-admin delete pod busybox-privileged
 # Baseline level and workload
 # The baseline policy demonstrates sensible defaults while preventing common container exploits.
 
-green "Enforces a \"restricted\" security policy and audits on restricted"
+ink "Enforces a \"restricted\" security policy and audits on restricted"
 kubectl label --overwrite ns verify-pod-security \
   pod-security.kubernetes.io/enforce=restricted \
   pod-security.kubernetes.io/audit=restricted
@@ -138,10 +118,10 @@ spec:
           - CHOWN
 EOF
 then
-    red "ERROR: Should not be able to create privileged pod in namespace $NS"
+    ink -r "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    yellow "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    ink -y"EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
 # Let's apply the baseline Pod Security level and try again.
@@ -206,10 +186,10 @@ spec:
           - CHOWN
 EOF
 then
-    red "ERROR: Should not be able to create privileged pod in namespace $NS"
+    ink -r "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    yellow "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    ink -y"EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
 if cat <<EOF | kubectl -n "$NS" apply -f -
