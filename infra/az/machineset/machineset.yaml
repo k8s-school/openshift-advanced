@@ -5,25 +5,25 @@ metadata:
     machine.openshift.io/cluster-api-cluster: demo-z2jlq
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
-  name: demo-z2jlq-worker-francecentral4
+  name: demo-z2jlq-worker-k8s-school
   namespace: openshift-machine-api
 spec:
   replicas: 1
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: demo-z2jlq
-      machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-francecentral4
+      machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-k8s-school
   template:
     metadata:
       labels:
         machine.openshift.io/cluster-api-cluster: demo-z2jlq
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-francecentral4
+        machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-k8s-school
     spec:
       metadata:
         labels:
-          machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-francecentral4
+          machine.openshift.io/cluster-api-machineset: demo-z2jlq-worker-k8s-school
           node-role.kubernetes.io/worker: ""
       providerSpec:
         value:
