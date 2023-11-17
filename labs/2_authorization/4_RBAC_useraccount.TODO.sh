@@ -10,7 +10,7 @@ set -x
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 CLUSTER_NAME="api-crc-testing:6443"
-ADMIN_CONTEXT="kubeadmin/$CLUSTER_NAME"
+ADMIN_CONTEXT="default/$CLUSTER_NAME/kubeadmin"
 # WARN: Directory kind-worker:/data/disk2, must exist
 
 ORG="k8s-school"
