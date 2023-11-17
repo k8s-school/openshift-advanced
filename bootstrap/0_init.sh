@@ -8,7 +8,7 @@ set -euxo pipefail
 dnf install -y bash-completion bind-utils git
 
 user="openshift"
-pass="dede"
+pass="0p&nsh!ft"
 
 adduser "$user"
 su - "$user" -c "git clone https://github.com/k8s-school/openshift-advanced.git"
