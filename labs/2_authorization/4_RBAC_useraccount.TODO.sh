@@ -20,7 +20,7 @@ kubectl config use-context "$ADMIN_CONTEXT"
 kubectl delete pv,clusterrolebinding,ns -l "RBAC=user"
 
 # Create namespace 'foo' in yaml, with label "RBAC=clusterrole"
-oc create project office
+oc new-project office
 kubectl label project office "RBAC=user"
 
 CERT_DIR="$HOME/.certs"
