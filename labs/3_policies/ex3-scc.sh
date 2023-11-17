@@ -128,7 +128,7 @@ then
     ink -r "ERROR: User '$SA' should not be able to create pod ubuntu root"
     exit 1
 else
-    ink -y"EXPECTED ERROR: User '$SA' cannot create pod"
+    ink -y "EXPECTED ERROR: User '$SA' cannot create pod"
 fi
 
 ink "Get scc for pod ubuntu-root"

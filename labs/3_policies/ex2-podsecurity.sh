@@ -57,7 +57,7 @@ then
     ink -r "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    ink -y"EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    ink -y "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
 ink "Enforces a \"privileged\" security policy and warns / audits on baseline"
@@ -121,7 +121,7 @@ then
     ink -r "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    ink -y"EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    ink -y "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
 # Let's apply the baseline Pod Security level and try again.
@@ -189,7 +189,7 @@ then
     ink -r "ERROR: Should not be able to create privileged pod in namespace $NS"
     exit 1
 else
-    ink -y"EXPECTED ERROR: No able to create privileged pod in namespace $NS"
+    ink -y "EXPECTED ERROR: No able to create privileged pod in namespace $NS"
 fi
 
 if cat <<EOF | kubectl -n "$NS" apply -f -
