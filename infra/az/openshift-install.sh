@@ -7,7 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 archive="/tmp/openshift.tar.gz"
 
-mkdir -p "$INSTALL_DIR"
+sudo mkdir -p "$INSTALL_DIR"
 
 # URL="https://github.com/okd-project/okd/releases/download/4.13.0-0.okd-2023-09-30-084937/openshift-install-linux-4.13.0-0.okd-2023-09-30-084937.tar.gz"
 URL="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.14.2.tar.gz"
