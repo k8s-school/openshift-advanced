@@ -92,7 +92,7 @@ kubectl apply -f "$POD.yaml"
 kubectl wait --timeout=60s --for=condition=Ready pods "$POD"
 kubectl exec -it "$POD"  -c first -- sh -c "id && \
     ls -l / | grep volume && \
-    ink foo > /volume/foo && \
+    echo foo > /volume/foo && \
     ls -l /volume && \
-    ink foo > /tmp/foo && \
+    echo foo > /tmp/foo && \
     ls -l /tmp"
