@@ -4,7 +4,7 @@
 
 ## Slides and materials
 
-Real time information is share through [the pad](https://annuel.framapad.org/p/k8s-school?lang=en)
+Real time information is shared through [the pad](https://annuel.framapad.org/p/k8s-school?lang=en)
 
 All slides are [on the website](https://www.k8s-school.fr/pdf)
 
