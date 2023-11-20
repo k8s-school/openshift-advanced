@@ -1,3 +1,3 @@
-# Openshift advanced labs
+# Pre-requisite
 
-Labs solution are available (here)[labs].
+Run on kind cluster >= v0.20.0

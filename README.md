@@ -1,6 +1,11 @@
 # openshift-advanced
 Openshift advanced course
 
+# Resources
+
+(Access to lab solutions)[labs]
+(Access to infrastructure tools)[infra]
+
 # Cheet sheat
 
 ```shell
