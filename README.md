@@ -11,7 +11,9 @@ All slides are [on the website](https://www.k8s-school.fr/pdf)
 # Resources
 
 [Access to lab solutions](labs)
+
 [Access to infrastructure tools](infra)
+
 [Access to crc install script](bootstrap)
 
 # Cheet sheat
