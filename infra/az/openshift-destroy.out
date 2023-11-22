@@ -1,0 +1,22 @@
++ /home/openshift/openshift-advanced/infra/az/openshift-install destroy cluster --dir /data/openshift-install --log-level=debug
+DEBUG OpenShift Installer 4.14.2                   
+DEBUG Built from commit c0f108be993307e519f8847264d06bc99a9cc7ad 
+INFO Credentials loaded from file "/home/openshift/.azure/osServicePrincipal.json" 
+DEBUG deleting public records                      
+DEBUG removing matching private records from openshift.k8s-school.fr 
+INFO deleted                                       record=api.demo
+INFO deleted                                       record=*.apps.demo
+DEBUG deleting resource group                      
+
+INFO deleted                                       resource group=demo-n247w-rg
+DEBUG deleting application registrations           
+DEBUG Purging asset "Metadata" from disk           
+DEBUG Purging asset "Master Ignition Customization Check" from disk 
+DEBUG Purging asset "Worker Ignition Customization Check" from disk 
+DEBUG Purging asset "Terraform Variables" from disk 
+DEBUG Purging asset "Kubeconfig Admin Client" from disk 
+DEBUG Purging asset "Kubeadmin Password" from disk 
+DEBUG Purging asset "Certificate (journal-gatewayd)" from disk 
+DEBUG Purging asset "Cluster" from disk            
+INFO Time elapsed: 6m22s                          
+INFO Uninstallation complete!  
