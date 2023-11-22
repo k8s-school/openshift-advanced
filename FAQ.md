@@ -1,6 +1,6 @@
 # openshift-install
 
-## What does the installer destroy cmd?
+## What does the installer 'destroy' cmd?
 
 Undocumented, and debug log are not useful
 "openshift-install destroy -h" does not help
