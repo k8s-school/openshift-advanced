@@ -14,8 +14,8 @@ and https://github.com/openshift/installer/blob/dd15963db02cabddf2c26870d230bd1f
 ## How to troubleshoot machine-api?
 
 Explanation for the "orphan machine" use case (creation of of machine using the export of an existing machine in a machineset)
-[./infra/az/machineset/failure-examples]
+is available [here](./infra/az/machineset/failure-examples)
 
-## Machine-api documentation:
+## Machine-api operator documentation:
 
 https://github.com/openshift/machine-api-operator/tree/master#readme
