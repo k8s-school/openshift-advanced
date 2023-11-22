@@ -1,0 +1,71 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: Machine
+metadata:
+  annotations:
+    machine.openshift.io/instance-state: Running
+  finalizers:
+  - machine.machine.openshift.io
+  generateName: demo-swfz8-worker-francecentral3-
+  generation: 2
+  labels:
+    machine.openshift.io/cluster-api-cluster: demo-swfz8
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+    machine.openshift.io/cluster-api-machineset: demo-swfz8-worker-francecentral3
+    machine.openshift.io/instance-type: Standard_D4s_v3
+    machine.openshift.io/region: francecentral
+    machine.openshift.io/zone: "3"
+  name: demo-swfz8-worker-francecentral3-school
+  namespace: openshift-machine-api
+  ownerReferences:
+  - apiVersion: machine.openshift.io/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: MachineSet
+    name: demo-swfz8-worker-francecentral3
+    uid: 4bb14069-df87-43e7-81b9-a754afae04bf
+  resourceVersion: "27180"
+  uid: 8b72f6a0-481c-4cca-af61-13c4b1f21768
+spec:
+  lifecycleHooks: {}
+  metadata: {}
+  providerID: azure:///subscriptions/c2b96932-405b-480d-8b73-24f86be1cdb6/resourceGroups/demo-swfz8-rg/providers/Microsoft.Compute/virtualMachines/demo-swfz8-worker-francecentral3-kgflv
+  providerSpec:
+    value:
+      acceleratedNetworking: true
+      apiVersion: machine.openshift.io/v1beta1
+      credentialsSecret:
+        name: azure-cloud-credentials
+        namespace: openshift-machine-api
+      diagnostics: {}
+      image:
+        offer: ""
+        publisher: ""
+        resourceID: /resourceGroups/demo-swfz8-rg/providers/Microsoft.Compute/galleries/gallery_demo_swfz8/images/demo-swfz8-gen2/versions/latest
+        sku: ""
+        version: ""
+      kind: AzureMachineProviderSpec
+      location: francecentral
+      managedIdentity: demo-swfz8-identity
+      metadata:
+        creationTimestamp: null
+      networkResourceGroup: demo-swfz8-rg
+      osDisk:
+        diskSettings: {}
+        diskSizeGB: 128
+        managedDisk:
+          securityProfile:
+            diskEncryptionSet: {}
+          storageAccountType: Premium_LRS
+        osType: Linux
+      publicIP: false
+      publicLoadBalancer: demo-swfz8
+      resourceGroup: demo-swfz8-rg
+      securityProfile:
+        settings: {}
+      subnet: demo-swfz8-worker-subnet
+      userDataSecret:
+        name: worker-user-data
+      vmSize: Standard_D4s_v3
+      vnet: demo-swfz8-vnet
+      zone: "3"
