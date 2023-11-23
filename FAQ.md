@@ -21,4 +21,9 @@ https://github.com/openshift/machine-api-operator/tree/master#readme
 
 # How to list all verbs?
 
-See https://stackoverflow.com/a/65245307/2784039
+See https://stackoverflow.com/questions/57661494/list-of-kubernetes-rbac-rule-verbs
+
+```shell
+kubectl proxy --port=8080
+curl -s http://localhost:8080/api/v1 | jq '.resources[] | [.name, (.verbs | join(" "))] | join(" = ")' -r
+```
