@@ -19,7 +19,9 @@ Explanation for the "orphan machine" use case (creation of of machine using the 
 
 https://github.com/openshift/machine-api-operator/tree/master#readme
 
-# How to list all verbs?
+# RBAC
+
+## How to list all verbs?
 
 See https://stackoverflow.com/questions/57661494/list-of-kubernetes-rbac-rule-verbs
 
@@ -27,3 +29,17 @@ See https://stackoverflow.com/questions/57661494/list-of-kubernetes-rbac-rule-ve
 kubectl proxy --port=8080
 curl -s http://localhost:8080/api/v1 | jq '.resources[] | [.name, (.verbs | join(" "))] | join(" = ")' -r
 ```
+
+# etcd troubleshooting
+
+[backing up etcd data](https://docs.openshift.com/container-platform/4.14/backup_and_restore/control_plane_backup_and_restore/backing-up-etcd.html#backing-up-etcd-data_backup-etcd)
+
+[replacing unhealthy etcd member](https://docs.openshift.com/container-platform/4.14/backup_and_restore/control_plane_backup_and_restore/replacing-unhealthy-etcd-member.html#restore-replace-crashlooping-etcd-member_replacing-unhealthy-etcd-member)
+
+[disaster recovery : restoring cluster state](https://docs.openshift.com/container-platform/4.14/backup_and_restore/control_plane_backup_and_restore/disaster_recovery/scenario-2-restoring-cluster-state.html)
+
+[hosted control plane : backup-restore](https://docs.openshift.com/container-platform/4.14/hosted_control_planes/hcp-backup-restore-dr.html#hcp-backup-restore)
+
+
+
+
