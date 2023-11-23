@@ -18,3 +18,7 @@ Explanation for the "orphan machine" use case (creation of of machine using the 
 ## Machine-api operator documentation:
 
 https://github.com/openshift/machine-api-operator/tree/master#readme
+
+# How to list all verbs?
+
+See https://stackoverflow.com/a/65245307/2784039
