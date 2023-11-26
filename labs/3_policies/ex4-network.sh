@@ -10,7 +10,7 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 EX4_NETWORK_FULL="${EX4_NETWORK_FULL:-false}"
 
 
-ID=0
+ID="$USER"
 NS="network-$ID"
 
 NODE1_IP=$(kubectl get nodes --selector="node-role.kubernetes.io/control-plane=" \
@@ -18,9 +18,8 @@ NODE1_IP=$(kubectl get nodes --selector="node-role.kubernetes.io/control-plane="
 
 # Run on kubeadm cluster
 # see "kubernetes in action" p391
-kubectl delete ns -l "policies=$NS"
+kubectl delete ns -l "kubernetes.io/metadata.name=$NS"
 kubectl create namespace "$NS"
-kubectl label ns "$NS" "policies=$NS"
 
 ink -b 'Exercice: Install one postgresql pod with helm and add label "tier:database" to master pod'
 ink "Disable data persistence"

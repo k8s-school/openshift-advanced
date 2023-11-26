@@ -9,8 +9,8 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 EX3_SCC_FULL="${EX3_SCC_FULL:-false}"
 
-ID=0
-NS="scc-example-$ID"
+ID="$USER"
+NS="scc-$ID"
 SA="fake-user"
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod

@@ -1,3 +1,5 @@
+* TODO scc/pod-security synchro: https://docs.openshift.com/container-platform/4.14/authentication/understanding-and-managing-pod-security-admission.html
+
 * TODO scenario for etcd backup/restore
 * TODO how to get all kubernetes rbac verbs?
 * TODO upgrade kubectl proxy *everywhere*
