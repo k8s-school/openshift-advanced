@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 shopt -s expand_aliases
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
@@ -9,64 +9,118 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 EX4_NETWORK_FULL="${EX4_NETWORK_FULL:-false}"
 
+usage() {
+  cat << EOD
+
+Usage: `basename $0` [options]
+
+  Available options:
+    -h         this message
+    -f         run exercice and solution
+
+Run network exercice
+EOD
+}
+
+# get the options
+while getopts hs c ; do
+    case $c in
+	    h) usage ; exit 0 ;;
+	    s) EX4_NETWORK_FULL=true ;;
+	    \?) usage ; exit 2 ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -ne 0 ] ; then
+    usage
+    exit 2
+fi
 
 ID="$USER"
 NS="network-$ID"
 
-NODE1_IP=$(kubectl get nodes --selector="node-role.kubernetes.io/control-plane=" \
-    -o=jsonpath='{.items[0].status.addresses[0].address}')
 
 # Run on kubeadm cluster
 # see "kubernetes in action" p391
 kubectl delete ns -l "kubernetes.io/metadata.name=$NS"
 kubectl create namespace "$NS"
 
+set +x
 ink -b 'Exercice: Install one postgresql pod with helm and add label "tier:database" to master pod'
 ink "Disable data persistence"
-helm delete pgsql --namespace "$NS" || ink -y "WARN pgsql release not found"
+set -x
+if ! helm delete pgsql --namespace "$NS"
+then
+    set +x
+    ink -y "WARN pgsql instance not found"
+    set -x
+fi
 
-helm repo add bitnami https://charts.bitnami.com/bitnami || ink "Failed to add bitnami repo"
+if ! helm repo add bitnami https://charts.bitnami.com/bitnami
+then
+    set +x
+    ink -y "WARN Failed to add bitnami repo"
+    set -x
+fi
 helm repo update
 
+set +x
+ink "Install postgresql database with helm"
+set -x
 helm install --version 11.9.1 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false"
 
-ink "Install nginx pods"
+set +x
+ink "Create external pod"
+set -x
 kubectl run -n "$NS" external --image=nginx:$NGINX_VERSION -l "app=external"
-kubectl run -n "$NS" nginx --image=nginx:$NGINX_VERSION -l "tier=webserver"
+set +x
+ink "Create webserver pod"
+set -x
+kubectl run -n "$NS" webserver --image=nginx:$NGINX_VERSION -l "tier=webserver"
 
 kubectl wait --timeout=60s -n "$NS" --for=condition=Ready pods external
 
 kubectl expose -n "$NS" pod external --type=NodePort --port 80 --name=external
+set +x
 ink "Install netcat, ping, netstat and ps in these pods"
+set -x
 kubectl exec -n "$NS" -it external -- \
     sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools procps tcpdump"
 
-kubectl wait --timeout=60s -n "$NS" --for=condition=Ready pods nginx
-kubectl exec -n "$NS" -it nginx -- \
+kubectl wait --timeout=60s -n "$NS" --for=condition=Ready pods webserver
+kubectl exec -n "$NS" -it webserver -- \
     sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools procps tcpdump"
 
+set +x
 ink "Wait for pgsql pods to be ready"
+set -x
 kubectl wait --for=condition=Ready -n "$NS" pods -l app.kubernetes.io/instance=pgsql
 
+set +x
 ink "then check what happen with no network policies defined"
 ink "++++++++++++++++++++"
 ink "NO NETWORK POLICIES"
 ink "++++++++++++++++++++"
+set -x
 EXTERNAL_IP=$(kubectl get pods -n "$NS" external -o jsonpath='{.status.podIP}')
 PGSQL_IP=$(kubectl get pods -n "$NS" pgsql-postgresql-0 -o jsonpath='{.status.podIP}')
-kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv ${PGSQL_IP} 5432
-kubectl exec -n "$NS" nginx -- netcat -q 2 -zv pgsql-postgresql 5432
-kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv $EXTERNAL_IP 80
+kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv ${PGSQL_IP} 5432
+kubectl exec -n "$NS" webserver -- netcat -q 2 -zv pgsql-postgresql 5432
+kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv $EXTERNAL_IP 80
 kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 443
 
+set +x
 ink "EXERCICE: Secure communication between webserver and database, and test (webserver, database, external, outside)"
-
+set -x
 if [ "$EX4_NETWORK_FULL" = false ]
 then
     exit 0
 fi
 
+set +x
 ink "Enable DNS access, see https://docs.projectcalico.org/v3.7/security/advanced-policy#5-allow-dns-egress-traffic"
+set -x
 kubectl apply -n "$NS" -f $DIR/resource/allow-dns-access.yaml
 
 # Edit original file, replace app with tier
@@ -77,12 +131,14 @@ ink "Set default deny network policies"
 # See https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-policies
 kubectl apply -n "$NS" -f $DIR/resource/default-deny.yaml
 
+set +x
 ink "Play and test network connections after each step"
 ink "+---------------------+"
 ink "WITH NETWORK POLICIES"
 ink "+---------------------+"
-kubectl exec -n "$NS" nginx -- netcat -q 2 -nzv ${PGSQL_IP} 5432
-kubectl exec -n "$NS" nginx -- netcat -w 2 -nzv $EXTERNAL_IP 80 && ink -r "ERROR this command should have failed"
+set -x
+kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv ${PGSQL_IP} 5432
+kubectl exec -n "$NS" webserver -- netcat -w 2 -nzv $EXTERNAL_IP 80 && ink -r "ERROR this command should have failed"
 kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432 && ink -r "ERROR this command should have failed"
 kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 80 && ink -r "ERROR this command should have failed"
 # Ip for www.w3.org
