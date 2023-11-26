@@ -28,9 +28,9 @@ kubectl get -n "$NSAPP" ingress
 
 set +x
 ink "INFO: Add application URL to DNS (/etc/hosts hack))"
-export server_ip=$(ip add show eth0 | grep -w inet | awk '{print $2;exit}' | cut -d'/' -f1)
+export crc_ip=$(192.168.130.11)
 go install github.com/txn2/txeh/txeh@v1.5.4
-sudo $(which txeh) add "$server_ip" hello-world.info
+sudo $(which txeh) add "$crc_ip" hello-world.info
 cat /etc/hosts | grep hello-world.info
 
 ink "access the application via ingress"
