@@ -11,7 +11,7 @@ NSAPP="ingress-app"
 
 # Run on kubeadm cluster
 # see "kubernetes in action" p391
-kubectl delete project -l "kubernetes.io/metadata.name: $NSAPP"
+kubectl delete project -l "kubernetes.io/metadata.name=$NSAPP"
 oc new-project "$NSAPP"
 
 ink "Deploy application"
