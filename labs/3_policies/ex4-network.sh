@@ -16,7 +16,7 @@ Usage: `basename $0` [options]
 
   Available options:
     -h         this message
-    -f         run exercice and solution
+    -s         run exercice and solution
 
 Run network exercice
 EOD
@@ -47,7 +47,7 @@ kubectl delete ns -l "kubernetes.io/metadata.name=$NS"
 kubectl create namespace "$NS"
 
 set +x
-ink -b 'Exercice: Install one postgresql pod with helm and add label "tier:database" to master pod'
+ink 'Install one postgresql pod with helm and add label "tier:database"'
 ink "Disable data persistence"
 set -x
 if ! helm delete pgsql --namespace "$NS"
@@ -86,11 +86,11 @@ set +x
 ink "Install netcat, ping, netstat and ps in these pods"
 set -x
 kubectl exec -n "$NS" -it external -- \
-    sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools procps tcpdump"
+    sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools"
 
 kubectl wait --timeout=60s -n "$NS" --for=condition=Ready pods webserver
 kubectl exec -n "$NS" -it webserver -- \
-    sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools procps tcpdump"
+    sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools"
 
 set +x
 ink "Wait for pgsql pods to be ready"
@@ -98,20 +98,32 @@ set -x
 kubectl wait --for=condition=Ready -n "$NS" pods -l app.kubernetes.io/instance=pgsql
 
 set +x
-ink "then check what happen with no network policies defined"
-ink "++++++++++++++++++++"
-ink "NO NETWORK POLICIES"
-ink "++++++++++++++++++++"
+ink "Check what happen with no network policies defined"
+ink -b "++++++++++++++++++++"
+ink -b "NO NETWORK POLICIES"
+ink -b "++++++++++++++++++++"
 set -x
 EXTERNAL_IP=$(kubectl get pods -n "$NS" external -o jsonpath='{.status.podIP}')
 PGSQL_IP=$(kubectl get pods -n "$NS" pgsql-postgresql-0 -o jsonpath='{.status.podIP}')
+set +x
+ink "webserver to database"
+set -x
 kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv ${PGSQL_IP} 5432
+set +x
+ink "webserver to database, using DNS name"
+set -x
 kubectl exec -n "$NS" webserver -- netcat -q 2 -zv pgsql-postgresql 5432
+set +x
+ink "webserver to outside external pod"
+set -x
 kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv $EXTERNAL_IP 80
+set +x
+ink "external to outside world"
+set -x
 kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 443
 
 set +x
-ink "EXERCICE: Secure communication between webserver and database, and test (webserver, database, external, outside)"
+ink -b "EXERCICE: Secure communication between webserver and database, and validate it (webserver, database, external, outside)"
 set -x
 if [ "$EX4_NETWORK_FULL" = false ]
 then
@@ -132,15 +144,58 @@ ink "Set default deny network policies"
 kubectl apply -n "$NS" -f $DIR/resource/default-deny.yaml
 
 set +x
-ink "Play and test network connections after each step"
-ink "+---------------------+"
-ink "WITH NETWORK POLICIES"
-ink "+---------------------+"
+ink "Check what happen with network policies defined"
+ink -b "+---------------------+"
+ink -b "WITH NETWORK POLICIES"
+ink -b "+---------------------+"
+set -x
+set +x
+ink "webserver to database"
 set -x
 kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv ${PGSQL_IP} 5432
-kubectl exec -n "$NS" webserver -- netcat -w 2 -nzv $EXTERNAL_IP 80 && ink -r "ERROR this command should have failed"
-kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432 && ink -r "ERROR this command should have failed"
-kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 80 && ink -r "ERROR this command should have failed"
-# Ip for www.w3.org
-kubectl exec -n "$NS" external -- netcat -w 2 -nzv 128.30.52.100 80 && ink -r "ERROR this command should have failed"
-
+set +x
+ink "webserver to database, using DNS name"
+set -x
+kubectl exec -n "$NS" webserver -- netcat -q 2 -zv pgsql-postgresql 5432
+set +x
+ink "webserver to external pod"
+set -x
+if kubectl exec -n "$NS" webserver -- netcat -q 2 -nzv $EXTERNAL_IP 80
+then
+    set +x
+    ink -r "ERROR this connection should have failed"
+    exit 1
+    set -x
+else
+    set +x
+    ink -y "Connection failed"
+    set -x
+fi
+set +x
+ink "external pod to database"
+set -x
+if kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432
+then
+    set +x
+    ink -r "ERROR this connection should have failed"
+    exit 1
+    set -x
+else
+    set +x
+    ink -y "Connection failed"
+    set -x
+fi
+set +x
+ink "external pod to outside world"
+set -x
+if kubectl exec -n "$NS" external -- netcat -w 2 -zv www.k8s-school.fr 80
+then
+    set +x
+    ink -r "ERROR this connection should have failed"
+    exit 1
+    set -x
+else
+    set +x
+    ink -y "Connection failed"
+    set -x
+fi
