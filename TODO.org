@@ -1,3 +1,12 @@
+* TODO Improve docker management on fedora:
+https://unix.stackexchange.com/questions/203168/docker-says-no-space-left-on-device-but-system-has-plenty-of-space
+* TODO increase file limit
+see https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files
+sudo sysctl fs.inotify.max_user_watches=524288
+sudo sysctl fs.inotify.max_user_instances=512
+
+
+* TODO manage USER variable in toolbox!!!
 * TODO scc/pod-security synchro: https://docs.openshift.com/container-platform/4.14/authentication/understanding-and-managing-pod-security-admission.html
 
 * TODO scenario for etcd backup/restore

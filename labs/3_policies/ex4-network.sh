@@ -37,7 +37,7 @@ if [ $# -ne 0 ] ; then
     exit 2
 fi
 
-ID="$USER"
+ID="$(whoami)"
 NS="network-$ID"
 
 

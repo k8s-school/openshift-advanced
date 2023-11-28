@@ -9,7 +9,7 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 EX3_SCC_FULL="${EX3_SCC_FULL:-false}"
 
-ID="$USER"
+ID="$(whoami)"
 NS="scc-$ID"
 SA="fake-user"
 
