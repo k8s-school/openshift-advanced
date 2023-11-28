@@ -6,7 +6,7 @@ sudo sysctl fs.inotify.max_user_watches=524288
 sudo sysctl fs.inotify.max_user_instances=512
 
 
-* TODO manage USER variable in toolbox!!!
+* TODO check ID=$whoami is working in toolbox labs
 * TODO scc/pod-security synchro: https://docs.openshift.com/container-platform/4.14/authentication/understanding-and-managing-pod-security-admission.html
 
 * TODO scenario for etcd backup/restore
