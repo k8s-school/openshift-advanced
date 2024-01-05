@@ -14,3 +14,7 @@ else
   echo "Instance openshift not created"
   exit 1
 fi
+
+ip_address=$(scw instance server wait "$instance_id" | grep PublicIP.Address | awk '{print $2}')
+
+scw instance ip delete "$ip_address"
