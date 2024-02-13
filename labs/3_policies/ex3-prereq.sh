@@ -1,4 +1,11 @@
-cat <<EOF > /tmp/ubuntu-root.yaml
+#!/bin/bash
+
+set -euxo pipefail
+
+tmp_dir="$HOME/tmp"
+mkdir -p $tmp_dir
+
+cat <<EOF > $tmp_dir/ubuntu-root.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -14,7 +21,7 @@ spec:
         runAsUser: 0
 EOF
 
-cat <<EOF > /tmp/ubuntu-simple.yaml
+cat <<EOF > $tmp_dir/ubuntu-simple.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -28,7 +35,7 @@ spec:
       command: ["sleep", "infinity"]
 EOF
 
-cat <<EOF > /tmp/ubuntu-privileged.yaml
+cat <<EOF > $tmp_dir/ubuntu-privileged.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -44,7 +51,7 @@ spec:
         privileged: true
 EOF
 
-cat <<EOF > /tmp/nginx-privileged.yaml
+cat <<EOF > $tmp_dir/nginx-privileged.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:

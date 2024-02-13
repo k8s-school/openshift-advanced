@@ -7,6 +7,9 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 . $DIR/../conf.version.sh
 
+tmp_dir="$HOME/tmp"
+mkdir -p $tmp_dir
+
 EX3_SCC_FULL="${EX3_SCC_FULL:-false}"
 
 ID="$(whoami)"
@@ -38,7 +41,7 @@ ink "Allow fake-user to create pods and deployments only in $NS"
 kubectl create rolebinding -n "$NS" edit --clusterrole=edit --serviceaccount="$NS":$SA
 
 ink "Try to create pod ubuntu-simple"
-kubectl-user create -f /tmp/ubuntu-simple.yaml
+kubectl-user create -f $tmp_dir/ubuntu-simple.yaml
 
 ink "Check access to scc"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/restricted-v2
@@ -49,10 +52,10 @@ kubectl get pod ubuntu-simple -o yaml | grep -i scc
 
 ink "Show which SCC is required by the pod ubuntu-simple"
 ink "WARN: command should not display anyuid here: inconsistency"
-oc adm policy scc-subject-review -f /tmp/ubuntu-simple.yaml
+oc adm policy scc-subject-review -f $tmp_dir/ubuntu-simple.yaml
 
 ink "Try to create pod ubuntu-root"
-if kubectl-user create -f /tmp/ubuntu-root.yaml
+if kubectl-user create -f $tmp_dir/ubuntu-root.yaml
 then
     ink -r "ERROR: User '$SA' should not be able to create pod ubuntu root"
     exit 1
@@ -61,7 +64,7 @@ else
 fi
 
 ink "Get scc for pod ubuntu-root"
-oc adm policy scc-subject-review -f /tmp/ubuntu-root.yaml
+oc adm policy scc-subject-review -f $tmp_dir/ubuntu-root.yaml
 
 ink "Check access to scc"
 if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid
@@ -82,12 +85,12 @@ ink "Grant access to scc anyuid to service account $SA"
 oc adm policy add-scc-to-user anyuid -z $SA
 
 ink "Check if service account can create pod ubuntu-root"
-oc adm policy scc-review -z system:serviceaccount:"$NS":$SA -f /tmp/ubuntu-root.yaml
+oc adm policy scc-review -z system:serviceaccount:"$NS":$SA -f $tmp_dir/ubuntu-root.yaml
 
 ink "Create pod ubuntu-root"
-kubectl-user create -f /tmp/ubuntu-root.yaml
+kubectl-user create -f $tmp_dir/ubuntu-root.yaml
 
-if kubectl-user create -f /tmp/ubuntu-privileged
+if kubectl-user create -f $tmp_dir/ubuntu-privileged
 then
     ink -r "ERROR: User '$SA' should not be able to create privileged pod"
     exit 1
@@ -96,23 +99,21 @@ else
 fi
 
 ink "Show which SCC is required by the pod ubuntu-privileged"
-oc adm policy scc-subject-review  -f /tmp/ubuntu-privileged.yaml
+oc adm policy scc-subject-review  -f $tmp_dir/ubuntu-privileged.yaml
 
 ink "Grant access to scc hostpath-provisioner to service account $SA"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA
 
 ink "Create pod ubuntu-privileged"
-kubectl-user create -f /tmp/ubuntu-privileged.yaml
+kubectl-user create -f $tmp_dir/ubuntu-privileged.yaml
 
-kubectl-user apply -f /tmp/nginx-privileged.yaml
+kubectl-user apply -f $tmp_dir/nginx-privileged.yaml
 kubectl-user get pods
 kubectl-user get events | head -n 2
 oc adm policy add-scc-to-user hostpath-provisioner -z default
-
 
 # Wait for deployment to recreate the pod
 sleep 5
 kubectl wait --timeout=60s --for=condition=Ready pods -l app=nginx -n "$NS"
 kubectl-user get pods
-
 

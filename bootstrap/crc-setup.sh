@@ -29,5 +29,9 @@ $crc config set skip-check-daemon-systemd-unit true
 $crc config set skip-check-daemon-systemd-sockets true
 # Enable cluster monitoring if true
 # this require at least 14 GiB of memory (a value of 14336)
-$crc config set enable-cluster-monitoring false 
+$crc config set enable-cluster-monitoring false
 $crc setup
+
+# Set the libvirt service to start at boot
+sudo systemctl enable libvirtd.service
+sudo systemctl start libvirtd.service
