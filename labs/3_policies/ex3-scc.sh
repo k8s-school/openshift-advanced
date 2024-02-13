@@ -107,9 +107,13 @@ oc adm policy add-scc-to-user hostpath-provisioner -z $SA
 ink "Create pod ubuntu-privileged"
 kubectl-user create -f $tmp_dir/ubuntu-privileged.yaml
 
+
+ink "Create nginx deployment"
 kubectl-user apply -f $tmp_dir/nginx-privileged.yaml
 kubectl-user get pods
 kubectl-user get events
+
+ink "Grant access to scc hostpath-provisioner to service account default"
 oc adm policy add-scc-to-user hostpath-provisioner -z default
 
 # Wait for deployment to recreate the pod
