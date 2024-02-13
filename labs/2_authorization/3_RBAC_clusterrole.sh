@@ -74,8 +74,8 @@ kubectl create clusterrole pv-reader --verb=get,list --resource=persistentvolume
 # Add label "RBAC=clusterrole"
 kubectl label clusterrole pv-reader "RBAC=clusterrole"
 
-# Create pod using image 'k8sschool/kubectl-proxy:1.15.3', and named 'shell' in ns '$NS'
-kubectl run shell --image=k8sschool/kubectl-proxy:1.15.3 -n $NS
+# Create pod using image 'k8sschool/kubectl-proxy', and named 'shell' in ns '$NS'
+kubectl run shell --image=k8sschool/kubectl-proxy:$KUBECTL_PROXY_VERSION -n $NS
 
 # Wait for $NS:shell to be in running state
 while true
