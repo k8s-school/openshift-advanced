@@ -4,6 +4,8 @@
 
 set -euxo pipefail
 
+INSTANCE_NAME="openshift"
+
 delete_ip=false
 while getopts "d" opt; do
   case $opt in
@@ -17,7 +19,7 @@ while getopts "d" opt; do
   esac
 done
 
-instance_id=$(scw instance server list | grep openshift | awk '{print $1}')
+instance_id=$(scw instance server list | grep "$INSTANCE_NAME" | awk '{print $1}')
 
 if [ -n "$instance_id" ]; then
   echo "Terminate $instance_id"
@@ -28,7 +30,7 @@ else
 fi
 
 if [ "$delete_ip" = true ]; then
-  ip_address=$(scw instance server wait "$instance_id" | grep PublicIP.Address | awk '{print $2}')
-  echo "Delete IP address $ip_address"
-  # scw instance ip delete "$ip_address"
+  ip_id=$(scw instance ip list tags.0="$INSTANCE_NAME" | grep "$INSTANCE_NAME" |   awk '{print $1}')
+  echo "Delete IP address $ip_id"
+  # scw instance ip delete "$ip_id"
 fi
