@@ -13,6 +13,12 @@ kubectl exec -t -n $ns "$etcd_pod" --  \
     sh -c "ETCDCTL_API=3 etcdctl \
     snapshot save /var/lib/etcd/etcd-snapshot.db"
 
+ink "Check the status of the snapshot: legacy"
 kubectl exec -t -n $ns "$etcd_pod" --  \
     sh -c "ETCDCTL_API=3 etcdctl \
+    -w fields snapshot status /var/lib/etcd/etcd-snapshot.db"
+
+ink "Check the status of the snapshot with etcdutl"
+kubectl exec -t -n $ns "$etcd_pod" --  \
+    sh -c "etcdutl \
     -w fields snapshot status /var/lib/etcd/etcd-snapshot.db"
