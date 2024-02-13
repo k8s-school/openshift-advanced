@@ -18,13 +18,21 @@ if scw instance server list | grep $INSTANCE_NAME; then
   exit 1
 fi
 
-scw instance server create zone="fr-par-1" image=fedora_38 type="$INSTANCE_TYPE" name=$INSTANCE_NAME root-volume=local:50GB
+ip_id=$(scw instance ip list tags.0="$INSTANCE_NAME" | grep openshift |   awk '{print $1}')
+if [ -n "$ip_id" ]
+then
+  echo "Using existing IP adress $ip_id"
+else
+  ip_id=$(scw instance ip create tags.0="$INSTANCE_NAME" | egrep "^ID" |  awk '{print $2}')
+fi
+
+scw instance server create zone="fr-par-1" image=fedora_38 type="$INSTANCE_TYPE" ip="$ip_id" name=$INSTANCE_NAME root-volume=local:50GB
 instance_id=$(scw instance server list | grep $INSTANCE_NAME | awk '{print $1}')
 ip_address=$(scw instance server wait "$instance_id" | grep PublicIP.Address | awk '{print $2}')
 
 ssh-keygen -f "/home/fjammes/.ssh/known_hosts" -R "$ip_address"
 until ssh -o "StrictHostKeyChecking no" root@"$ip_address" true 2> /dev/null
-  do
+do
     echo "Waiting for sshd on $ip_address..."
     sleep 5
 done
@@ -37,13 +45,8 @@ ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/0.2_prereq-us
 # ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-setup.sh'"
 # ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-start.sh'"
 
-# demo_dir="/home/$OPENSHIFT_USER/openshift-advanced/demo"
-# ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$demo_dir/init.sh'"
-# ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$demo_dir/fink-install.sh'"
-
 echo "Connect to the server with below command:"
 echo "ssh root@$ip_address"
-
 
 # TODO add following lines to local /etc/hosts
 # Openshift

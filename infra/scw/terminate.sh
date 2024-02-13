@@ -2,8 +2,20 @@
 
 # Terminate the 'openshift' instance on Scaleway
 
-
 set -euxo pipefail
+
+delete_ip=false
+while getopts "d" opt; do
+  case $opt in
+    d)
+      delete_ip=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
 
 instance_id=$(scw instance server list | grep openshift | awk '{print $1}')
 
@@ -15,6 +27,8 @@ else
   exit 1
 fi
 
-ip_address=$(scw instance server wait "$instance_id" | grep PublicIP.Address | awk '{print $2}')
-
-scw instance ip delete "$ip_address"
+if [ "$delete_ip" = true ]; then
+  ip_address=$(scw instance server wait "$instance_id" | grep PublicIP.Address | awk '{print $2}')
+  echo "Delete IP address $ip_address"
+  # scw instance ip delete "$ip_address"
+fi
