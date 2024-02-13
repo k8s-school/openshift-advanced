@@ -17,13 +17,13 @@ NS="scc-$ID"
 SA="fake-user"
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
-kubectl delete namespace -l "scc=id-$ID"
+kubectl delete namespace -l "scc=$ID"
 oc adm policy remove-scc-from-user anyuid -z $SA || ink -y "WARN: anyuid not allowed to $SA"
 oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || ink -y "WARN: hostpath-provisioner not allowed to $SA"
 oc adm policy remove-scc-from-user hostpath-provisioner -z default || ink -y "WARN: hostpath-provisioner not allowed to default"
 
 oc new-project "$NS"
-kubectl label ns "$NS" "scc=id-$ID"
+kubectl label ns "$NS" "scc=$ID"
 kubectl create serviceaccount -n "$NS" $SA
 
 # WARN alias does not work with bash
@@ -109,7 +109,7 @@ kubectl-user create -f $tmp_dir/ubuntu-privileged.yaml
 
 kubectl-user apply -f $tmp_dir/nginx-privileged.yaml
 kubectl-user get pods
-kubectl-user get events | head -n 2
+kubectl-user get events
 oc adm policy add-scc-to-user hostpath-provisioner -z default
 
 # Wait for deployment to recreate the pod
