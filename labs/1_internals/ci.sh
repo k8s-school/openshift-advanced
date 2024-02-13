@@ -6,4 +6,3 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 $DIR/ex1.sh
 $DIR/ex2-backup.sh
-$DIR/ex3-staticpods.sh
