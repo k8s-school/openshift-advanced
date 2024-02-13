@@ -7,7 +7,7 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 FILES=$DIR/*.sh
 for f in $FILES
 do
-  if ink "$f" | grep "ci\.sh"; then
+  if echo "$f" | grep "ci\.sh"; then
       echo
       ink "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
       ink "NOT processing $f"
