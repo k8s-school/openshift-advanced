@@ -17,11 +17,13 @@ NS="scc-$ID"
 SA="fake-user"
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
+ink "Reset scc namespace $NS and remove related scc"
 kubectl delete namespace -l "scc=$ID"
 oc adm policy remove-scc-from-user anyuid -z $SA || ink -y "WARN: anyuid not allowed to $SA"
 oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || ink -y "WARN: hostpath-provisioner not allowed to $SA"
 oc adm policy remove-scc-from-user hostpath-provisioner -z default || ink -y "WARN: hostpath-provisioner not allowed to default"
 
+ink "Create namespace $NS and service account $SA"
 oc new-project "$NS"
 kubectl label ns "$NS" "scc=$ID"
 kubectl create serviceaccount -n "$NS" $SA
