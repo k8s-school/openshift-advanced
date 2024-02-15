@@ -4,8 +4,6 @@ https://unix.stackexchange.com/questions/203168/docker-says-no-space-left-on-dev
 see https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files
 sudo sysctl fs.inotify.max_user_watches=524288
 sudo sysctl fs.inotify.max_user_instances=512
-
-
 * TODO check ID=$whoami is working in toolbox labs
 * TODO scc/pod-security synchro: https://docs.openshift.com/container-platform/4.14/authentication/understanding-and-managing-pod-security-admission.html
 
