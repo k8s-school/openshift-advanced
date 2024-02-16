@@ -5,4 +5,3 @@
 ./2_authorization/4_RBAC_useraccount.TODO.sh
 ./2_authorization/audit-example.TODO.txt
 * Add https to ingress example
-* TODO upgrade kubectl proxy pod

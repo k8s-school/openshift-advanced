@@ -9,5 +9,4 @@ sudo sysctl fs.inotify.max_user_instances=512
 
 * TODO scenario for etcd backup/restore
 * TODO how to get all kubernetes rbac verbs?
-* TODO upgrade kubectl proxy *everywhere*
 * TODO show solution with rbac-analysis how to find clusterrolebinding
