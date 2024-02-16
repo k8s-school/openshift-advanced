@@ -29,10 +29,10 @@ do
     for sa in $SA default
     do
         if kubectl --as=system:serviceaccount:"$NS":$sa  auth can-i use scc/$policy; then
-            ink -y "Remove scc/$policy from $sa"
+            ink -y "Remove scc/$policy for serviceaccount $sa in namespace $NS"
             oc adm policy remove-scc-from-user $policy -z $sa
         else
-            ink -y "User '$sa' cannot use scc/$policy"
+            ink -y "Serviceaccount '$sa' cannot use scc/$policy"
         fi
     done
 done
