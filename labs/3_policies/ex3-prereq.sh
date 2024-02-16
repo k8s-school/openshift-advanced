@@ -15,7 +15,7 @@ metadata:
 spec:
   containers:
     - name:  ubuntu
-      image: ubuntu:latest
+      image: ubuntu:22.04
       command: ["sleep", "infinity"]
       securityContext:
         runAsUser: 0
@@ -31,7 +31,7 @@ metadata:
 spec:
   containers:
     - name:  ubuntu
-      image: ubuntu:latest
+      image: ubuntu:22.04
       command: ["sleep", "infinity"]
 EOF
 
@@ -45,7 +45,7 @@ metadata:
 spec:
   containers:
     - name:  ubuntu
-      image: ubuntu:latest
+      image: ubuntu:22.04
       command: ["sleep", "infinity"]
       securityContext:
         privileged: true
