@@ -41,7 +41,7 @@ bootstrap_dir="/home/$OPENSHIFT_USER/openshift-advanced/bootstrap"
 
 ssh root@"$ip_address" -- "curl  -s https://raw.githubusercontent.com/k8s-school/openshift-advanced/main/bootstrap/0_init.sh | bash"
 ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/0.1_install_docker.sh'"
-ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/install_go.sh'"
+ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/install-go.sh'"
 ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/0.2_prereq-user.sh'"
 ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-setup.sh'"
 ssh root@"$ip_address" -- "su - $OPENSHIFT_USER -c '$bootstrap_dir/crc-start.sh'"
