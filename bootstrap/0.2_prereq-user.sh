@@ -6,7 +6,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 . "$DIR"/conf.sh
 
-sudo dnf install -y golang byobu
+sudo dnf install -y byobu
 
 mkdir -p $HOME/src
 
