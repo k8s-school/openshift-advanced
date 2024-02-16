@@ -8,6 +8,7 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 # in order to avoid image pull
 $DIR/ex1-securitycontext.sh
 export EX3_SCC_FULL=true
+$DIR/ex3-prereq.sh
 $DIR/ex3-scc.sh
 export EX4_NETWORK_FULL=true
 $DIR/ex4-network.sh
