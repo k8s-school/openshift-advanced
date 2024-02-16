@@ -23,9 +23,19 @@ alias kubectl-user='kubectl --as=system:serviceaccount:$NS:$SA -n "$NS"'
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
 ink "Reset scc namespace $NS and remove related scc"
-oc adm policy remove-scc-from-user anyuid -z $SA || ink -y "WARN: anyuid not allowed to $SA"
-oc adm policy remove-scc-from-user hostpath-provisioner -z $SA || ink -y "WARN: hostpath-provisioner not allowed to $SA"
-oc adm policy remove-scc-from-user hostpath-provisioner -z default || ink -y "WARN: hostpath-provisioner not allowed to default"
+
+for policy in anyuid hostpath-provisioner
+do
+    for sa in $SA default
+    do
+        if kubectl --as=system:serviceaccount:"$NS":$sa  auth can-i use scc/$policy; then
+            ink -y "Remove scc/$policy from $sa"
+            oc adm policy remove-scc-from-user $policy -z $sa
+        else
+            ink -y "User '$sa' cannot use scc/$policy"
+        fi
+    done
+done
 kubectl delete namespace -l "scc=$ID"
 
 ink "Create namespace $NS and service account $SA"
@@ -46,7 +56,12 @@ kubectl-user create -f $tmp_dir/ubuntu-simple.yaml
 
 ink "Check access to scc"
 kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/restricted-v2
-kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid
+if kubectl --as=system:serviceaccount:"$NS":$SA  auth can-i use scc/anyuid; then
+    ink -r "ERROR: User '$SA' should not be able to use scc/anyuid"
+    exit 1
+else
+    ink -y "EXPECTED ERROR: User '$SA' cannot use scc/anyuid"
+fi
 
 ink "Check which scc was used"
 kubectl get pod ubuntu-simple -o yaml | grep -i scc
