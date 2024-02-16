@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.7.9
+        image: nginx:1.25.3
         ports:
         - containerPort: 80
         securityContext:
