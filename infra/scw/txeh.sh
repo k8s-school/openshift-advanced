@@ -10,7 +10,7 @@ set -euxo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 OPENSHIFT_USER="openshift"
-INSTANCE_NAME="openshift"
+INSTANCE_NAME="openshiftlarge"
 INSTANCE_TYPE="GP1-M"
 
 instance_id=$(scw instance server list | grep "$INSTANCE_NAME" | awk '{print $1}')

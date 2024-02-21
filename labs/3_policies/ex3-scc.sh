@@ -114,7 +114,10 @@ else
 fi
 
 ink "Show which SCC is required by the pod ubuntu-privileged"
+ink -y "Commands below are not so well documented"
 oc adm policy scc-subject-review  -f $tmp_dir/ubuntu-privileged.yaml
+oc adm policy scc-subject-review -z system:serviceaccount:scc-openshift:fake-user -f ~/tmp/ubuntu-privileged.yaml
+oc adm policy scc-review -z system:serviceaccount:scc-openshift:fake-user -f ~/tmp/ubuntu-privileged.yaml
 
 ink "Grant access to scc hostpath-provisioner to service account $SA"
 oc adm policy add-scc-to-user hostpath-provisioner -z $SA

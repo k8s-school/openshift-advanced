@@ -18,8 +18,9 @@ fi
 
 crc="$HOME/crc-linux-$VERSION-amd64"/crc
 
-echo "Preset okd for crc..."
-$crc config set preset okd
+echo "Preset openshift for crc..."
+# $crc config set preset okd
+$crc config set preset openshift
 
 echo "Setting up crc..."
 $crc config set cpus 7

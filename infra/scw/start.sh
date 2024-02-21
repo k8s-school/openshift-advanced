@@ -10,7 +10,7 @@ set -euxo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 OPENSHIFT_USER="openshift"
-INSTANCE_NAME="openshift"
+INSTANCE_NAME="openshiftlarge"
 INSTANCE_TYPE="GP1-M"
 
 if scw instance server list | grep $INSTANCE_NAME; then
@@ -18,7 +18,7 @@ if scw instance server list | grep $INSTANCE_NAME; then
   exit 1
 fi
 
-ip_id=$(scw instance ip list tags.0="$INSTANCE_NAME" | grep openshift |   awk '{print $1}')
+ip_id=$(scw instance ip list tags.0="$INSTANCE_NAME" | grep -w "$INSTANCE_NAME" |   awk '{print $1}')
 if [ -n "$ip_id" ]
 then
   echo "Using existing IP adress $ip_id"
@@ -26,7 +26,7 @@ else
   ip_id=$(scw instance ip create tags.0="$INSTANCE_NAME" | egrep "^ID" |  awk '{print $2}')
 fi
 
-scw instance server create zone="fr-par-1" image=fedora_38 type="$INSTANCE_TYPE" ip="$ip_id" name=$INSTANCE_NAME root-volume=local:50GB
+scw instance server create zone="fr-par-1" image=fedora_38 type="$INSTANCE_TYPE" ip="$ip_id" name=$INSTANCE_NAME root-volume=local:100GB
 instance_id=$(scw instance server list | grep $INSTANCE_NAME | awk '{print $1}')
 ip_address=$(scw instance server wait "$instance_id" | grep PublicIP.Address | awk '{print $2}')
 
