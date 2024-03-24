@@ -52,7 +52,6 @@ spec:
           publicIP: false
           publicLoadBalancer: ""
           resourceGroup: demo-z2jlq-rg
-          sshPrivateKey: ""
           sshPublicKey: ""
           subnet: demo-z2jlq-worker-subnet
           userDataSecret:

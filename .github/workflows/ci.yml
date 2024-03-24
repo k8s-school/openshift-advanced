@@ -23,18 +23,18 @@ jobs:
         run: |
           go install github.com/k8s-school/ktbx@v1.1.1-rc6
           ktbx create -c
-      - name: Install ink 
+      - name: Install ink
         run: |
           go install github.com/k8s-school/ink@v0.0.1-rc3
       - name: Run test on internals
         run: |
-          ./1_internals/ci.sh
+          ./labs/1_internals/ci.sh
       - name: Run test on policies
         run: |
-          ./3_policies/ci.sh
+          ./labs/3_policies/ci.sh
       - name: Run test on computational resources
         run: |
-          ./4_computational_resources/ci.sh
+          ./labs/4_computational_resources/ci.sh
       - name: Install prometheus
         run: |
-          ./B_prometheus/install.sh
+          ./labs/B_prometheus/install.sh
