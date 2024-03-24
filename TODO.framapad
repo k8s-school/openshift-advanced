@@ -1,0 +1,115 @@
+PodSecurity exercice
+cp /tmp/config ~/.kube/config
+ktbx desk
+kubectx kind-kind
+
+SCC exercice
+See https://www.k8s-school.fr/pdf/OPENSHIFT.pdf, page 28
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "51.158.78.135"
+Retrieve openshift passwork /tmp/oc-creds.txt
+oc login -u kubeadmin https://api.crc.testing:6443
+ktbx desk
+clone-school.sh
+./openshift-advanced/labs/3_policies/ex3-scc.sh
+
+NetworkPolicy
+
+mkdir -p ~/.kube
+cp /tmp/config $HOME/.kube/config
+chmod 600 $HOME/.kube/config
+ktbx desk
+clone-school.sh
+./openshift-advanced/labs/3_policies/ex4-network.sh
+kubens network-k8s<ID>
+
+Doc for network-policy: 
+https://kubernetes.io/docs/concepts/services-networking/network-policies/#the-networkpolicy-resource
+https://github.com/ahmetb/kubernetes-network-policy-recipes
+
+Use timeout for netcat
+kubectl exec -n "$NS" external -- netcat -w 2 -zv pgsql-postgresql 5432
+
+
+RBAC:
+
+    use url on API server to check RBAC
+
+    User account, ServiceAccount
+
+    Roles/RoleBindings + ClusterRoles/ClusterRoleBindings
+
+    rbac-tool: monitoring
+
+
+RBAC Exercice
+
+On openshift:
+    # Retrieve password in /tmp/oc-creds.txt
+    oc login -u kubeadmin https://api.crc.testing:6443
+
+Create a machine set
+https://docs.openshift.com/container-platform/4.14/machine_management/creating_machinesets/creating-machineset-azure.html
+
+kubectl get machinesets.machine.openshift.io -n openshift-machine-api -o jsonpath="{.items[0].metadata.labels.machine\.openshift\.io\/cluster-api-cluster}"
+
+# WARN outside of toolbox
+cp /tmp/config $HOME/.kube/azconfig
+ktbx desk
+export KUBECONFIG=$HOME/.kube/azconfig
+kubectl get nodes
+# Create machineset.yaml and apply it
+
+
+Cut and paste tip:
+cat > my-file.sh
+paste the content and use Ctrl-D
+
+The file is here!
+
+https://k8s-school.fr/resources/en/blog/kubeadm/
+
+Reminder for day 1
+Control Plane:
+    
+- etcd: database: desired state (send by the user), the current state (~kubelet)
+- API Server
+
+    Authentication
+
+    Authorization
+
+    AdmissionControl
+
+    Plugins (embedded in api server code)
+
+    Webhooks: Mutation/Validation
+
+    Created as a static pod
+
+- Scheduler: schedule pod on nodes, select the best node
+- Controller: make the current state equal to the desired state (reconciliation loop)
+
+Worker nodes:
+kubelet:
+
+    start/manage the pods using CRI (Container Runtime Interface)
+
+    send the node state to the Api server
+
+
+Container runtime
+
+    CRI-O, containerd
+
+
+kube-proxy:
+    Manage the service network
+    
+Add-on:
+
+    CNI plugin (Container Network Interface)
+
+        manage the pod network
+
+
+    DNS
