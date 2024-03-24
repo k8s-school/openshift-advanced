@@ -6,7 +6,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 IP=$($DIR/../scw/get_ip.sh)
 
-scp pull-secret root@"$IP":/tmp
+scp $DIR/pull-secret root@"$IP":/tmp
 scp ~/.azure/osServicePrincipal.json root@"$IP":/tmp
 
 ssh root@"$IP" mv /tmp/pull-secret /home/openshift/openshift-advanced/infra/az
