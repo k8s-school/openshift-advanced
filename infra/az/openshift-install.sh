@@ -13,7 +13,7 @@ sudo mkdir -p "$INSTALL_DIR"
 sudo chown openshift:openshift "$INSTALL_DIR"
 
 # URL="https://github.com/okd-project/okd/releases/download/4.13.0-0.okd-2023-09-30-084937/openshift-install-linux-4.13.0-0.okd-2023-09-30-084937.tar.gz"
-URL="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-$OPENSHIFT_VERSION.tar.gz"
+URL="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$OPENSHIFT_VERSION/openshift-install-linux-$OPENSHIFT_VERSION.tar.gz"
 if [ ! -e $DIR/openshift-install ]; then
     echo "Download openshift-install"
     curl -L "$URL" -o "$archive"
