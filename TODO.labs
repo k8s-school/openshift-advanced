@@ -1,8 +1,5 @@
-oc adm policy add-role-to-user <role> <user> -n <project>
-
-See:
-USER:
-https://github.com/crc-org/crc/wiki/Add-another-user-to-cluster
-
-GROUP:
-https://docs.okd.io/3.11/admin_guide/manage_users.html#admin-guide-managing-users-creating-groups
+* Check console for crc is working
+* add ssh tunner helper
+* check port in networkpolicy ingress www -> db (port should be aside db)
+* add QCM each morning
+* Use framapad to set up a re-usable document?
