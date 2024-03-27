@@ -16,6 +16,34 @@ ID="$(whoami)"
 NS="scc-$ID"
 SA="fake-user"
 
+usage() {
+  cat << EOD
+
+Usage: `basename $0` [options]
+
+  Available options:
+    -h         this message
+    -s         run exercice and solution
+
+Run scc exercice
+EOD
+}
+
+# get the options
+while getopts hs c ; do
+    case $c in
+	    h) usage ; exit 0 ;;
+	    s) EX3_SCC_FULL=true ;;
+	    \?) usage ; exit 2 ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -ne 0 ] ; then
+    usage
+    exit 2
+fi
+
 # WARN alias does not work with bash
 shopt -s expand_aliases
 alias kubectl-admin='kubectl -n "$NS"'

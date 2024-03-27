@@ -32,5 +32,5 @@ fi
 if [ "$delete_ip" = true ]; then
   ip_id=$(scw instance ip list tags.0="$INSTANCE_NAME" | grep "$INSTANCE_NAME" |   awk '{print $1}')
   echo "Delete IP address $ip_id"
-  # scw instance ip delete "$ip_id"
+  scw instance ip delete "$ip_id"
 fi
