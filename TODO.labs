@@ -1,5 +1,4 @@
 * Check console for crc is working
-* add ssh tunner helper
 * check port in networkpolicy ingress www -> db (port should be aside db)
 * add QCM each morning
 * Use framapad to set up a re-usable document?
