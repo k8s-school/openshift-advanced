@@ -130,9 +130,10 @@ oc adm policy add-scc-to-user anyuid -z $SA
 ink "Check if service account can create pod ubuntu-root"
 oc adm policy scc-review -z system:serviceaccount:"$NS":$SA -f $tmp_dir/ubuntu-root.yaml
 
-ink "Create pod ubuntu-root"
+ink "Create pod ubuntu-root with success"
 kubectl-user create -f $tmp_dir/ubuntu-root.yaml
 
+ink "Try to create pod ubuntu-privileged"
 if kubectl-user create -f $tmp_dir/ubuntu-privileged.yaml
 then
     ink -r "ERROR: User '$SA' should not be able to create privileged pod"
