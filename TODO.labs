@@ -1,3 +1,7 @@
+* pre-pull/load containers
+* install kind cluster
+* check openshift on azure machine-set
+* check kubeadm doc is ok (install cilium by hand??)
 * Check console for crc is working
 * check port in networkpolicy ingress www -> db (port should be aside db)
 * add QCM each morning

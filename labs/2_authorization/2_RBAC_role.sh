@@ -37,40 +37,37 @@ do
 done
 ink "Set the namespace preference to 'foo'"
 ink "so that all kubectl command are ran in ns 'foo' by default"
-kubectl config set-context $(kubectl config current-context) --namespace=foo
+kubectl config set-context --current --namespace=foo
 
 ink "Create pod using image 'k8sschool/kubectl-proxy', and named 'shell' in ns 'foo'"
 kubectl run shell --image=k8sschool/kubectl-proxy:$KUBECTL_PROXY_VERSION
 
-# Wait for foo:shell to be in running state
+ink "Wait for foo:shell to be in running state"
 kubectl  wait --for=condition=Ready pods shell
 
-# Check RBAC is enabled:
-# inside foo:shell, curl k8s api server
+ink "Check authorization (RBAC): inside pod foo:shell, curl k8s api server"
 # at URL <API_SERVER>:<PORT>/api/v1/namespaces/foo/services
 kubectl exec -it shell -- curl localhost:8001/api/v1/namespaces/foo/services
 
-# Study and create role manifest/service-reader.yaml in ns 'foo'
+ink "Create role manifest/service-reader.yaml in ns 'foo'"
 kubectl apply -f "$DIR/manifest/service-reader.yaml"
 
-# Create role service-reader.yaml in ns 'bar'
-# Use 'kubectl create role' command instead of yaml
+ink "Create role service-reader.yaml in ns 'bar', use 'kubectl create role' command instead of yaml"
 kubectl create role service-reader --verb=get --verb=list --resource=services -n bar
 
-# Create a rolebindind 'service-reader-rb' to bind role foo:service-reader
-# to sa (i.e. serviceaccount) foo:default
+ink "Create a rolebindind 'service-reader-rb' to bind role foo:service-reader to serviceaccount foo:default"
 kubectl create rolebinding service-reader-rb --role=service-reader --serviceaccount=foo:default
 
-# List service in ns 'foo' from foo:shell
+ink "List services in ns 'foo' from foo:shell"
 kubectl exec -it -n foo shell -- curl localhost:8001/api/v1/namespaces/foo/services
 
-# List service in ns 'foo' from bar:shell
+ink "List service in ns 'foo' from bar:shell"
 kubectl exec -it -n bar shell -- curl localhost:8001/api/v1/namespaces/foo/services
 
-# Use the patch command, and jsonpatch syntax to add bind foo:service-reader to sa bar.default
+ink "Use the patch command, and jsonpatch syntax to add bind foo:service-reader to sa bar.default"
 # See http://jsonpatch.com for examples
 kubectl patch rolebindings.rbac.authorization.k8s.io -n foo service-reader-rb --type='json' \
     -p='[{"op": "add", "path": "/subjects/-", "value": {"kind": "ServiceAccount","name": "default","namespace": "bar"} }]'
 
-# List service in ns 'foo' from bar:shell
+ink "List service in ns 'foo' from bar:shell"
 kubectl exec -it -n bar shell -- curl localhost:8001/api/v1/namespaces/foo/services

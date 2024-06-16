@@ -26,7 +26,7 @@ kubectl create namespace "$NS"
 kubectl label ns "$NS" "podsecurity=enabled"
 kubectl label namespace "$NS" pod-security.kubernetes.io/enforce=restricted
 # The following command does NOT create a workload (--dry-run=server)
-kubectl -n "$NS" run test --dry-run=server --image=busybox:$BUSYBOX_VERSION --privileged || ink -y "EXPECTED ERROR"
+kubectl -n "$NS" run test --dry-run=server --image=ubuntu:24.04 --privileged || ink -y "EXPECTED ERROR"
 kubectl delete namespace "$NS"
 
 kubectl create namespace "$NS"
@@ -42,11 +42,11 @@ if cat <<EOF | kubectl -n verify-pod-security apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-privileged
+  name: ubuntu-privileged
 spec:
   containers:
-  - name: busybox
-    image: busybox
+  - name: ubuntu
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -72,11 +72,11 @@ cat <<EOF | kubectl -n verify-pod-security apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-privileged
+  name: ubuntu-allow-privilege-escalation
 spec:
   containers:
-  - name: busybox
-    image: busybox
+  - name: ubuntu
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -86,7 +86,7 @@ EOF
 alias kubectl-admin="kubectl -n $NS"
 
 kubectl-admin get pods
-kubectl-admin delete pod busybox-privileged
+kubectl-admin delete pod ubuntu-allow-privilege-escalation
 
 # Baseline level and workload
 # The baseline policy demonstrates sensible defaults while preventing common container exploits.
@@ -102,11 +102,11 @@ if cat <<EOF | kubectl -n verify-pod-security apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-baseline
+  name: ubuntu-baseline
 spec:
   containers:
-  - name: busybox
-    image: busybox
+  - name: ubuntu
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -135,11 +135,11 @@ if cat <<EOF | kubectl -n verify-pod-security apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-baseline
+  name: ubuntu-baseline
 spec:
   containers:
-  - name: busybox
-    image: busybox
+  - name: ubuntu
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -157,7 +157,7 @@ else
     exit 1
 fi
 
-kubectl -n "$NS" delete pod busybox-baseline
+kubectl -n "$NS" delete pod ubuntu-baseline
 
 # Restricted level and workload
 
@@ -170,11 +170,11 @@ if cat <<EOF | kubectl -n "$NS" apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-baseline
+  name: ubuntu-baseline
 spec:
   containers:
-  - name: busybox
-    image: busybox
+  - name: ubuntu
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -196,13 +196,13 @@ if cat <<EOF | kubectl -n "$NS" apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-restricted
+  name: ubuntu-restricted
 spec:
   securityContext:
     runAsUser: 65534
   containers:
-  - name: busybox
-    image: busybox
+  - name: ubuntu
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -224,12 +224,9 @@ else
     exit 1
 fi
 
-ink "Use 'crictl inspect' to check pods on nodes"
-ink "Use 'oc debug node/node-name and crictl inspect' to check pods on nodes"
-
-node=$(kubectl get pod -n verify-pod-security busybox-restricted -o "jsonpath={.spec.nodeName}")
-
-# docker exec -it $node crictl inspect busybox
+# ink "Use 'docker exec -it <node-name> -- bash and crictl inspect' to check pods on nodes"
+# node=$(kubectl get pod -n verify-pod-security ubuntu-restricted -o "jsonpath={.spec.nodeName}")
+# docker exec -it $node crictl inspect ubuntu
 
 
 

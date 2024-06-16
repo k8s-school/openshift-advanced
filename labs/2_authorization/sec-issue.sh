@@ -4,7 +4,7 @@
 
 set -euxo pipefail
 
-NS="monitoring"
+NS="rbac-monitoring"
 
 kubectl create namespace "$NS"
 kubectl create clusterrolebinding cluster-monitoring --clusterrole=cluster-admin --serviceaccount=monitoring:default

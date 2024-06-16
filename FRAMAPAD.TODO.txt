@@ -1,0 +1,96 @@
+Exercice: PodAntiAffinity
+Create a namespace <ID>-firstname
+Work in your namespace (use kubens)
+Then:
+https://k8s-school.fr/labs/en/1_labs/antiaffinity/index.html
+
+Exercice: NetworkPolicy
+
+Prereq: 
+    ktbx desk
+    - Retrieve the kubeconfig file to access the new k8s cluster: https://k8s-school.fr/labs/en/0_prereqs/ssh/index.html#kubernetes-access
+    - Launch exercice pre-requisites:
+    openshift-advanced/labs/3_policies/ex4-network.sh
+
+Day 2 reminder
+
+RBAC: Permission/Authorization to access the API-server (orchestration)
+- Grant access per ServiceAccount, (Human) User, Group
+- Role, RoleBinding, ClusterRole, ClusterRoleBinding
+- track a security issue with rbac-tools
+
+SecurityContext: secures the processes which run in the pod's container
+SecurityContextConstraints: allow k8s administrators to set constraint on the Pod security profile (SecurityContext) per ServiceAccount, (Human) User, Group, relying on RBAC
+PodSecurity: allow k8s administrators to set constraint on the Pod security profile (SecurityContext) per namespace, or at the cluster level
+OPA/Gatekeeper: allow to set fine-grained rule on any object which get inside the cluster (MutatingHook), rules are embedded inside Custom Resources and written in rego
+
+Exercice: PodSecurity
+ktbx desk
+# Connect to k8s
+kubectx kind-kind
+
+Exercice: SCC
+ktbx desk
+- Connect to Openshift: https://k8s-school.fr/labs/en/0_prereqs/ssh/index.html#openshift-access
+./openshift-advanced/labs/3_policies/ex3-prereq.sh 
+./openshift-advanced/labs/3_policies/ex3-scc.sh 
+
+Run openshift-advanced/labs/3_policies/ex3-prereq.sh and ./ex3-scc.sh
+Allow service account fake-user to create pods and deployments in namespace scc-k8s<ID>
+Try to create pod ubuntu-simple (cf. $HOME/tmp/ubuntu-simple.yaml) as fake-user:
+kubectl --as=system:serviceaccount:<ns>:<sa> apply -f <file>
+Check access to scc restricted-v2
+kubectl --as=system:serviceaccount:<ns>:<sa> auth can-i use scc/restricted-v2
+Check which scc was used and the runAsUser field in pod specification
+Try to create pod ubuntu-root (cf. $HOME/tmp/ubuntu-root.yaml) as fake-user
+ Get required scc for pod ubuntu-root
+oc adm policy scc-subject-review -f <podfile.yaml>
+Check access to this scc for user fake-user
+Grant access to this scc to service account fake-user
+oc adm policy add-scc-to-user <scc-name> -z <sa>
+oc adm policy scc-review -z system:serviceaccount:<ns>:<sa> -f <podfile.yaml>
+Create pod ubuntu-root as fake-userCreate pod ubuntu-privileged (cf. /tmp/ubuntu-privileged.yaml) using above commands
+
+
+Exercice: RBAC security issue
+ktbx desk
+kubectx kind-kind
+
+Use 
+https://github.com/alcideio/rbac-tool
+https://github.com/kubescape/kubescape
+https://github.com/corneliusweig/rakkess
+
+To find the RBAC security issue in the cluster
+
+
+Day 2 reminder
+Openshift machine-api
+ClusterAutoscaler/MachineAutoscaler: autoscale the MachineSets depending on application workload
+MachineSets -> Machines -> VM -> k8s Nodes
+
+Monitoring with Prometheus and Grafana
+Quick installation of prometheus stack
+
+
+Day one reminder
+Kubernetes
+
+Control Plane
+- Api server: main entrypoint for Kubernetes
+Authentication/ authorization /admission control
+Store data in etcd
+- Scheduler: schedule pods on nodes
+- etcd: Kubernetes database, ectctl client
+key-value storage, store current state/desired state
+- Controller: Run the reconciliation loop (drive current state toward desired state)
+
+
+Worker node
+- kubelet: connect to the API server and manage containers on the Node, also manage the Node
+- kube-proxy: manage the Service clusterIP and configure the node kernel (iptables) so that this clusterIP is redirected to Pod Ips
+- container runtime (CRI): run the containers
+
+Openshift: same control plane than Kubernetes
+
+Cluster installation: kubeadm: official install tool.

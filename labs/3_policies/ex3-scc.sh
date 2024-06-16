@@ -51,7 +51,7 @@ alias kubectl-user='kubectl --as=system:serviceaccount:$NS:$SA -n "$NS"'
 
 # See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#run-another-pod
 ink "Reset scc namespace $NS and remove related scc"
-kubectl config set-context $(kubectl config current-context) --namespace=$NS
+kubectl config set-context --current --namespace=$NS
 for policy in anyuid hostpath-provisioner
 do
     for sa in $SA default
@@ -163,7 +163,7 @@ kubectl-user get events
 ink "Grant access to scc hostpath-provisioner to service account default"
 oc adm policy add-scc-to-user hostpath-provisioner -z default
 
-# Wait for deployment to recreate the pod
+ink "Wait for deployment to recreate the pod"
 sleep 5
 kubectl wait --timeout=60s --for=condition=Ready pods -l app=nginx -n "$NS"
 kubectl-user get pods

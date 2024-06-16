@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: main
-    image: curlimages/curl
+    image: curlimages/curl:8.16.0
     command: ["sleep", "9999999"]
   - name: ambassador
     image: k8sschool/kubectl-proxy:1.27.3

@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-PROJECT=$(kubectl get machinesets.machine.openshift.io -n openshift-machine-api -o jsonpath="{.items[0].metadata.labels.machine\.openshift\.io\/cluster-api-cluster}")
+PROJECT=$(kubectl get machinesets.machine.openshift.io -n openshift-machine-api -o jsonpath="{.items[1].metadata.labels.machine\.openshift\.io\/cluster-api-cluster}")
 
 sed -i "s/demo-z2jlq/$PROJECT/g" machineset.yaml
 
