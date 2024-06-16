@@ -4,19 +4,6 @@ set -euo pipefail
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
-FILES=$DIR/*.sh
-for f in $FILES
-do
-  if echo "$f" | grep "ci\.sh"; then
-      echo
-      ink "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      ink "NOT processing $f"
-      ink "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  else
-      echo
-      ink "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      ink "Processing $f"
-      ink "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      sh -c "$f"
-  fi
-done
+$DIR/1_RBAC_sa.sh
+$DIR/2_RBAC_role.sh
+$DIR/3_RBAC_clusterrole.sh                                                                             
