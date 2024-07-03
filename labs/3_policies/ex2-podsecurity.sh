@@ -72,7 +72,7 @@ cat <<EOF | kubectl -n verify-pod-security apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: busybox-privileged
+  name: busybox-allow-privilege-escalation
 spec:
   containers:
   - name: busybox
@@ -86,7 +86,7 @@ EOF
 alias kubectl-admin="kubectl -n $NS"
 
 kubectl-admin get pods
-kubectl-admin delete pod busybox-privileged
+kubectl-admin delete pod busybox-allow-privilege-escalation
 
 # Baseline level and workload
 # The baseline policy demonstrates sensible defaults while preventing common container exploits.
