@@ -163,7 +163,7 @@ kubectl-user get events
 ink "Grant access to scc hostpath-provisioner to service account default"
 oc adm policy add-scc-to-user hostpath-provisioner -z default
 
-# Wait for deployment to recreate the pod
+ink "Wait for deployment to recreate the pod"
 sleep 5
 kubectl wait --timeout=60s --for=condition=Ready pods -l app=nginx -n "$NS"
 kubectl-user get pods
