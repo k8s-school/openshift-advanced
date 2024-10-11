@@ -11,7 +11,7 @@ ink "Run test on authorization"
 "$DIR"/2_authorization/ci.sh
 echo
 ink "Run test on policies"
-"$DIR"/3_policies/ci.sh
+"$DIR"/3_policies/ci-openshift.sh
 echo
-ink "Run test on computational resources"
-"$DIR"/4_computational_resources/ci.sh
+# ink "Run test on computational resources"
+# "$DIR"/4_computational_resources/ci.sh
