@@ -1,3 +1,5 @@
+* TODO speak about https://docs.openshift.com/container-platform/4.14/applications/quotas/quotas-setting-across-multiple-projects.html
+* TODO rbac-analysis PR. show solution with rbac-analysis how to find clusterrolebinding, rbac-analysis does not display the namespace for "default" SA (make an issue??)
 * TODO understand the subjec-review command
 {openshift@k8s-toolbox:~}$ oc adm policy scc-subject-review -z system:serviceaccount:scc-openshift:fake-user -f ~/tmp/ubuntu-privileged.yaml
 RESOURCE                ALLOWED BY
@@ -9,9 +11,8 @@ Pod/ubuntu-privileged   fake-user         hostpath-provisioner
 * TODO Improve docker management on fedora:
 https://unix.stackexchange.com/questions/203168/docker-says-no-space-left-on-device-but-system-has-plenty-of-space
 * TODO scc/pod-security synchro: https://docs.openshift.com/container-platform/4.14/authentication/understanding-and-managing-pod-security-admission.html
-* TODO scenario for etcd backup/restore
 * TODO how to get all kubernetes rbac verbs?
-* TODO show solution with rbac-analysis how to find clusterrolebinding, rbac-analysis does not display the namespace for "default" SA (make an issue??)
 * TODO https://docs.openshift.com/container-platform/4.14/applications/quotas/quotas-setting-across-multiple-projects.html
-* TODO https://passt.top/passt/about/
 * TODO devcontainers
+* DONE https://passt.top/passt/about/
+* DONE scenario for etcd backup/restore
