@@ -8,22 +8,28 @@ ID="test"  # Change this to a unique identifier if needed
 FOO_NAMESPACE="foo-${ID}"
 BAR_NAMESPACE="bar-${ID}"
 
-echo "Creating namespaces..."
+PROXY_POD="curl-custom-sa"
+
+ink "Creating namespaces..."
 kubectl create namespace "$FOO_NAMESPACE" || true
 kubectl create namespace "$BAR_NAMESPACE" || true
 
-echo "Deploying kubectl-proxy pod in $FOO_NAMESPACE..."
-kubectl apply -f https://raw.githubusercontent.com/k8s-school/k8s-advanced/master/labs/2_authorization/kubectl-proxy.yaml -n "$FOO_NAMESPACE"
+ink "Deploying kubectl-proxy pod in $FOO_NAMESPACE..."
+
+# Download the kubectl-proxy pod definition
+curl -s -o kubectl-proxy.yaml https://raw.githubusercontent.com/k8s-school/k8s-advanced/master/labs/2_authorization/kubectl-proxy.yaml
+
+# Replace the service account name in the pod definition
+sed -i "s/serviceAccountName: foo/serviceAccountName: default/" kubectl-proxy.yaml
+
+kubectl apply -f kubectl-proxy.yaml -n "$FOO_NAMESPACE"
 
 echo "Creating services in $FOO_NAMESPACE and $BAR_NAMESPACE..."
 kubectl create service clusterip foo-service --tcp=80:80 -n "$FOO_NAMESPACE" || true
 kubectl create service clusterip bar-service --tcp=80:80 -n "$BAR_NAMESPACE" || true
 
 echo "Waiting for kubectl-proxy pod to be ready..."
-kubectl wait --for=condition=ready pod -l app=kubectl-proxy -n "$FOO_NAMESPACE" --timeout=60s
-
-echo "Fetching kubectl-proxy pod name..."
-PROXY_POD=$(kubectl get pods -n "$FOO_NAMESPACE" -l app=kubectl-proxy -o jsonpath="{.items[0].metadata.name}")
+kubectl wait --for=condition=ready pod -n "$FOO_NAMESPACE" --timeout=60s $PROXY_POD
 
 echo "Creating RBAC (Role and RoleBinding) in $FOO_NAMESPACE..."
 kubectl apply -f - <<EOF
@@ -54,12 +60,12 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
-echo "Running tests inside kubectl-proxy pod..."
+ink "Running tests inside kubectl-proxy pod..."
 
-echo "Testing access to services in $FOO_NAMESPACE (should succeed)..."
+ink "Testing access to services in $FOO_NAMESPACE (should succeed)..."
 kubectl exec -n "$FOO_NAMESPACE" "$PROXY_POD" -- curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/api/v1/namespaces/"$FOO_NAMESPACE"/services
-
-echo "Testing access to services in $BAR_NAMESPACE (should be forbidden)..."
+echo
+ink "Testing access to services in $BAR_NAMESPACE (should be forbidden)..."
 kubectl exec -n "$FOO_NAMESPACE" "$PROXY_POD" -- curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/api/v1/namespaces/"$BAR_NAMESPACE"/services
-
-echo "Test completed!"
+echo
+ink "Test completed!"
