@@ -55,7 +55,7 @@ metadata:
   name: $POD
 spec:
   containers:
-  - image: busybox
+  - image: busybox:1.37.0
     command: ["dd", "if=/dev/zero", "of=/dev/null"]
     name: main
     resources:
