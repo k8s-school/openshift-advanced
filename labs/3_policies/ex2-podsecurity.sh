@@ -224,12 +224,10 @@ else
     exit 1
 fi
 
-ink "Use 'crictl inspect' to check pods on nodes"
-ink "Use 'oc debug node/node-name and crictl inspect' to check pods on nodes"
+ink "Use 'docker exec -it <node-name> -- bash and crictl inspect' to check pods on nodes"
 
 node=$(kubectl get pod -n verify-pod-security ubuntu-restricted -o "jsonpath={.spec.nodeName}")
-
-# docker exec -it $node crictl inspect ubuntu
+docker exec -it $node crictl inspect ubuntu
 
 
 
