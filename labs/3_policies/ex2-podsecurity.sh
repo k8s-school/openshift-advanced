@@ -26,7 +26,7 @@ kubectl create namespace "$NS"
 kubectl label ns "$NS" "podsecurity=enabled"
 kubectl label namespace "$NS" pod-security.kubernetes.io/enforce=restricted
 # The following command does NOT create a workload (--dry-run=server)
-kubectl -n "$NS" run test --dry-run=server --image=ubuntu:22.04 --privileged || ink -y "EXPECTED ERROR"
+kubectl -n "$NS" run test --dry-run=server --image=ubuntu:24.04 --privileged || ink -y "EXPECTED ERROR"
 kubectl delete namespace "$NS"
 
 kubectl create namespace "$NS"
@@ -46,7 +46,7 @@ metadata:
 spec:
   containers:
   - name: ubuntu
-    image: ubuntu:22.04
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -76,7 +76,7 @@ metadata:
 spec:
   containers:
   - name: ubuntu
-    image: ubuntu:22.04
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -106,7 +106,7 @@ metadata:
 spec:
   containers:
   - name: ubuntu
-    image: ubuntu:22.04
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -139,7 +139,7 @@ metadata:
 spec:
   containers:
   - name: ubuntu
-    image: ubuntu:22.04
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -174,7 +174,7 @@ metadata:
 spec:
   containers:
   - name: ubuntu
-    image: ubuntu:22.04
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
@@ -202,7 +202,7 @@ spec:
     runAsUser: 65534
   containers:
   - name: ubuntu
-    image: ubuntu:22.04
+    image: ubuntu:24.04
     args:
     - sleep
     - "1000000"
