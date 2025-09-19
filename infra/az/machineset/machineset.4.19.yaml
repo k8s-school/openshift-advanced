@@ -1,0 +1,68 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: <infrastructure_id> 
+    machine.openshift.io/cluster-api-machine-role: infra 
+    machine.openshift.io/cluster-api-machine-type: infra
+  name: <infrastructure_id>-infra-k8sschool
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: <infrastructure_id>
+      machine.openshift.io/cluster-api-machineset: <infrastructure_id>-infra-k8sschool
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: <infrastructure_id>
+        machine.openshift.io/cluster-api-machine-role: infra
+        machine.openshift.io/cluster-api-machine-type: infra
+        machine.openshift.io/cluster-api-machineset: <infrastructure_id>-infra-k8sschool
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          machine.openshift.io/cluster-api-machineset: <machineset_name>
+          node-role.kubernetes.io/infra: ""
+      providerSpec:
+        value:
+          apiVersion: machine.openshift.io/v1beta1
+          credentialsSecret:
+            name: azure-cloud-credentials
+            namespace: openshift-machine-api
+          image: 
+            offer: ""
+            publisher: ""
+            resourceID: /resourceGroups/<infrastructure_id>-rg/providers/Microsoft.Compute/galleries/gallery_<machineset_name>/images/<infrastructure_id>-gen2/versions/latest 
+            sku: ""
+            version: ""
+          internalLoadBalancer: ""
+          kind: AzureMachineProviderSpec
+          location: francecentral 
+          managedIdentity: <infrastructure_id>-identity
+          metadata:
+            creationTimestamp: null
+          natRule: null
+          networkResourceGroup: "<infrastructure_id>-rg"
+          osDisk:
+            diskSizeGB: 128
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          publicLoadBalancer: "<infrastructure_id>"
+          resourceGroup: <infrastructure_id>-rg
+          sshPrivateKey: ""
+          sshPublicKey: ""
+          subnet: <infrastructure_id>-worker-subnet
+          userDataSecret:
+            name: worker-user-data
+          vmSize: Standard_D4s_v3
+          vnet: <infrastructure_id>-vnet
+          zone: "1" 
+      taints: 
+      - key: node-role.kubernetes.io/infra
+        effect: NoSchedule
