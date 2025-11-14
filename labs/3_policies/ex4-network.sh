@@ -68,7 +68,7 @@ helm repo update
 set +x
 ink "Install postgresql database with helm"
 set -x
-helm install --version 11.9.1 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false"
+helm install --version 18.1.8 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false"
 
 set +x
 ink "Create external pod"
