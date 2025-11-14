@@ -15,7 +15,6 @@ spec:
       machine.openshift.io/cluster-api-machineset: <infrastructure_id>-infra-k8sschool
   template:
     metadata:
-      creationTimestamp: null
       labels:
         machine.openshift.io/cluster-api-cluster: <infrastructure_id>
         machine.openshift.io/cluster-api-machine-role: infra
@@ -23,7 +22,6 @@ spec:
         machine.openshift.io/cluster-api-machineset: <infrastructure_id>-infra-k8sschool
     spec:
       metadata:
-        creationTimestamp: null
         labels:
           machine.openshift.io/cluster-api-machineset: <machineset_name>
           node-role.kubernetes.io/infra: ""
@@ -44,7 +42,6 @@ spec:
           location: francecentral 
           managedIdentity: <infrastructure_id>-identity
           metadata:
-            creationTimestamp: null
           natRule: null
           networkResourceGroup: "<infrastructure_id>-rg"
           osDisk:

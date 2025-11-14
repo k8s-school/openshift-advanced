@@ -4,7 +4,7 @@ set -euxo pipefail
 
 PROJECT=$(kubectl get machinesets.machine.openshift.io -n openshift-machine-api -o jsonpath="{.items[1].metadata.labels.machine\.openshift\.io\/cluster-api-cluster}")
 
-sed "s/<infrastructure_id>/$PROJECT/g" machineset.4.19.yaml > machineset.tmp.yaml
+sed "s/<infrastructure_id>/$PROJECT/g" machineset.4.20.yaml > machineset.tmp.yaml
 
 PROJECT_=$(echo "${PROJECT/-/_}")
 
