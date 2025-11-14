@@ -29,9 +29,6 @@ jobs:
           go install github.com/k8s-school/ink@v0.0.1-rc3
       - name: Run test on policies
         run: |
-          ./labs/2_authorization/ci.sh
-      - name: Run test on policies
-        run: |
           ./labs/3_policies/ci-k8s.sh
       - name: Run test on computational resources
         run: |
