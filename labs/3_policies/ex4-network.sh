@@ -95,7 +95,7 @@ kubectl exec -n "$NS" -it webserver -- \
 set +x
 ink "Wait for pgsql pods to be ready"
 set -x
-kubectl wait --for=condition=Ready -n "$NS" pods -l app.kubernetes.io/instance=pgsql
+kubectl wait --for=condition=Ready --timeout=120s -n "$NS" pods -l app.kubernetes.io/instance=pgsql
 
 set +x
 ink "Check what happen with no network policies defined"
