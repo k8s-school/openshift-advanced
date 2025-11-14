@@ -3,7 +3,7 @@
 set -euxo pipefail
 
 # OPENSHIFT_VERSION="4.16.15"
-OPENSHIFT_VERSION="4.19.13"
+OPENSHIFT_VERSION="4.20.4"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . $DIR/conf.sh
