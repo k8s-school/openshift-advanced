@@ -68,7 +68,8 @@ helm repo update
 set +x
 ink "Install postgresql database with helm"
 set -x
-helm install --version 18.1.8 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false"
+# See https://hub.docker.com/r/bitnami/postgresql
+helm install --version 18.1.8 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false",image.pullPolicy="IfNotPresent"
 
 set +x
 ink "Create external pod"
