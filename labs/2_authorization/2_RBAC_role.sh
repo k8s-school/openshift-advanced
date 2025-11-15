@@ -20,7 +20,7 @@ kubectl label ns foo bar "RBAC=role"
 
 ink "Create a deployment and its related service in ns 'foo'"
 # for example use nginx image
-kubectl create deployment nginx --image=nginxinc/nginx-unprivileged:$NGINX_UNPRIVILEGED_VERSION_ -n foo
+kubectl create deployment nginx --image=nginxinc/nginx-unprivileged:$NGINX_UNPRIVILEGED_VERSION -n foo
 kubectl expose deployment nginx -n foo --type=NodePort --port=8080 --name=nginx-service
 
 ink "Create pod using image 'k8sschool/kubectl-proxy', and named 'shell' in ns 'bar'"
