@@ -30,7 +30,7 @@ ink "Wait for pod bar:shell to be in running state"
 kubectl wait -n bar --for=condition=Ready pods shell
 
 ink "Access svc 'foo:nginx-service' from pod 'bar:shell'"
-while ! kubectl exec -it -n bar shell -- curl --connect-timeout 2 http://nginx-service.foo:80
+while ! kubectl exec -it -n bar shell -- curl --connect-timeout 2 http://nginx-service.foo:8080
 do
     ink "Waiting for nginx svc"
     sleep 2
