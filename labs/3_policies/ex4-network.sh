@@ -95,7 +95,7 @@ spec:
 EOF
 
 echo ""
-echo "=== Waiting for pod to start (max 60s) ==="
+ink "Waiting for postgresql pod to start"
 sleep 10
 kubectl wait --for=condition=ready pod/postgresql -n "$NS" --timeout=60s
 
@@ -122,18 +122,13 @@ kubectl exec -n "$NS" -it webserver -- \
     sh -c "apt-get update && apt-get install -y dnsutils inetutils-ping netcat-traditional net-tools"
 
 set +x
-ink "Wait for pgsql pods to be ready"
-set -x
-kubectl wait --for=condition=Ready --timeout=120s -n "$NS" pods -l app.kubernetes.io/instance=pgsql
-
-set +x
 ink "Check what happen with no network policies defined"
 ink -b "++++++++++++++++++++"
 ink -b "NO NETWORK POLICIES"
 ink -b "++++++++++++++++++++"
 set -x
 EXTERNAL_IP=$(kubectl get pods -n "$NS" external -o jsonpath='{.status.podIP}')
-PGSQL_IP=$(kubectl get pods -n "$NS" pgsql-postgresql-0 -o jsonpath='{.status.podIP}')
+PGSQL_IP=$(kubectl get pods -n "$NS" postgresql -o jsonpath='{.status.podIP}')
 set +x
 ink "webserver to database"
 set -x
