@@ -48,28 +48,56 @@ kubectl create namespace "$NS"
 
 set +x
 ink 'Install one postgresql pod with helm and add label "tier:database"'
-ink "Disable data persistence"
-set -x
-if ! helm delete pgsql --namespace "$NS"
-then
-    set +x
-    ink -y "WARN pgsql instance not found"
-    set -x
-fi
 
-if ! helm repo add bitnami https://charts.bitnami.com/bitnami
-then
-    set +x
-    ink -y "WARN Failed to add bitnami repo"
-    set -x
-fi
-helm repo update
+echo "=== Creating PostgreSQL pod ==="
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgresql
+  namespace: "$NS"
+  labels:
+    app: postgresql
+    tier: database
+spec:
+  containers:
+  - name: postgresql
+    image: bitnami/postgresql:latest
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: POSTGRESQL_PASSWORD
+      value: "postgres"
+    - name: POSTGRESQL_USERNAME
+      value: "postgres"
+    - name: POSTGRESQL_DATABASE
+      value: "mydb"
+    ports:
+    - containerPort: 5432
+      name: postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgsql-postgresql
+  namespace: "$NS"
+  labels:
+    app: postgresql
+spec:
+  selector:
+    app: postgresql
+    tier: database
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgresql
+  type: ClusterIP
+EOF
 
-set +x
-ink "Install postgresql database with helm"
-set -x
-# See https://hub.docker.com/r/bitnami/postgresql
-helm install --version 18.1.8 --namespace "$NS" pgsql bitnami/postgresql --set primary.podLabels.tier="database",persistence.enabled="false",image.pullPolicy="IfNotPresent"
+echo ""
+echo "=== Waiting for pod to start (max 60s) ==="
+sleep 10
+kubectl wait --for=condition=ready pod/postgresql -n "$NS" --timeout=60s
 
 set +x
 ink "Create external pod"
