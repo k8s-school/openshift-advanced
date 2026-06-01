@@ -1,0 +1,5 @@
+# Step 1: Fix LoadBalancer quota with ClusterIP
+# Still fails: nginx binds port 80 as root, blocked by restricted-v2 SCC
+service:
+  type: ClusterIP
+  port: 80
