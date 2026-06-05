@@ -8,7 +8,7 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 ID="$(whoami)"
 RELEASE="nginx"
-CHART="$DIR/nginx-chart"
+CHART="$DIR/../nginx-chart"
 
 pause() {
     [ "${INTERACTIVE:-true}" = "false" ] && return
@@ -18,22 +18,22 @@ pause() {
 }
 
 usage() {
-    echo "Usage: $0 [-c] [-y]"
-    echo "  -c  Use current namespace instead of creating a new one"
+    echo "Usage: $0 [-d] [-y]"
+    echo "  -d  Developer Platform mode: use current namespace + run step 0 (LoadBalancer quota demo)"
     echo "  -y  Non-interactive mode (skip pause between steps)"
     exit 1
 }
 
-USE_CURRENT_NS=false
-while getopts "cy" opt; do
+DEV_PLATFORM=false
+while getopts "dy" opt; do
     case $opt in
-        c) USE_CURRENT_NS=true ;;
+        d) DEV_PLATFORM=true ;;
         y) INTERACTIVE=false ;;
         *) usage ;;
     esac
 done
 
-if [ "$USE_CURRENT_NS" = "true" ]; then
+if [ "$DEV_PLATFORM" = "true" ]; then
     NS=$(kubectl config view --minify -o jsonpath='{..namespace}')
     echo "Using current namespace: $NS"
 else
@@ -44,34 +44,36 @@ else
     kubectl config set-context --current --namespace="$NS"
 fi
 
-# STEP 0 — Helm defaults: LoadBalancer + port 80
-##################################################
+# STEP 0 — Helm defaults: LoadBalancer + port 80 (Developer Platform only)
+##########################################################################
 
-ink "Step 0 — Install nginx with Helm defaults (LoadBalancer + port 80)"
-ink "Expected failure: LoadBalancer quota on Red Hat Developer Portal (services.loadbalancers=0)"
-if helm upgrade --install "$RELEASE" "$CHART" \
-    --namespace "$NS" \
-    --set image.tag="$NGINX_VERSION" \
-    --wait --timeout 30s
-then
-    ink -r "Unexpected success: LoadBalancer quota should have blocked this"
-    exit 1
-else
-    ink "Expected failure confirmed"
+if [ "$DEV_PLATFORM" = "true" ]; then
+    ink "Step 0 — Install nginx with Helm defaults (LoadBalancer + port 80)"
+    ink "Expected failure: LoadBalancer quota on Red Hat Developer Portal (services.loadbalancers=0)"
+    if helm upgrade --install "$RELEASE" "$CHART" \
+        --namespace "$NS" \
+        --set image.tag="$NGINX_VERSION" \
+        --wait --timeout 30s
+    then
+        ink -r "Unexpected success: LoadBalancer quota should have blocked this"
+        exit 1
+    else
+        ink "Expected failure confirmed"
+    fi
+
+    ink -y "Diagnose step 0: quota limits + events"
+    # ClusterResourceQuota is enforced at cluster level per user, not per namespace
+    # kubectl get resourcequota only shows namespace-scoped quotas — misses cluster-level ones
+    oc get appliedclusterresourcequota
+    SERVICES_QUOTA=$(oc get appliedclusterresourcequota -o name | grep "\-services$" | cut -d/ -f2)
+    oc describe appliedclusterresourcequota "$SERVICES_QUOTA"
+    # The quota violation is rejected by the admission controller before the resource is persisted
+    # → no Kubernetes Event is generated for it; the error is returned directly to the helm client
+    # Events below only reflect resources that passed admission (Deployment, ReplicaSet, Pod)
+    kubectl get events --sort-by='.lastTimestamp' | tail -20
+
+    pause 0
 fi
-
-ink -y "Diagnose step 0: quota limits + events"
-# ClusterResourceQuota is enforced at cluster level per user, not per namespace
-# kubectl get resourcequota only shows namespace-scoped quotas — misses cluster-level ones
-oc get appliedclusterresourcequota
-SERVICES_QUOTA=$(oc get appliedclusterresourcequota -o name | grep "\-services$" | cut -d/ -f2)
-oc describe appliedclusterresourcequota "$SERVICES_QUOTA"
-# The quota violation is rejected by the admission controller before the resource is persisted
-# → no Kubernetes Event is generated for it; the error is returned directly to the helm client
-# Events below only reflect resources that passed admission (Deployment, ReplicaSet, Pod)
-kubectl get events --sort-by='.lastTimestamp' | tail -20
-
-pause 0
 
 # STEP 1 — ClusterIP: fixes quota, still fails on SCC (port 80 = root)
 ########################################################################

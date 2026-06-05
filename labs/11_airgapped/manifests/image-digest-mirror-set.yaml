@@ -1,0 +1,10 @@
+apiVersion: config.openshift.io/v1
+kind: ImageDigestMirrorSet
+metadata:
+  name: local-registry-mirror
+spec:
+  imageDigestMirrors:
+  - mirrors:
+    - ${HOST_IP}:5000
+    source: docker.io
+    mirrorSourcePolicy: NeverContactSource

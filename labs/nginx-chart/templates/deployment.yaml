@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: nginx
+        image: "{{ if .Values.image.registry }}{{ .Values.image.registry }}/{{ end }}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if .Values.openShiftConfig }}
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        {{- end }}
+      {{- if .Values.mirror }}
+      - name: alpine-sidecar
+        image: "{{ if .Values.image.registry }}{{ .Values.image.registry }}/library/{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}{{ else }}{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}{{ end }}"
+        imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+        command: ["sleep", "infinity"]
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.openShiftConfig }}
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: {{ .Release.Name }}-config
+      {{- end }}
