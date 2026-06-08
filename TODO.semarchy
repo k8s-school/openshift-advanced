@@ -1,0 +1,7 @@
+labs/0_openshift_intro/
+labs/6_helm_migration/
+labs/7_machine_api/ (reuse patterns from infra/az/machineset/create_from_existing_machineset.sh)
+labs/8_monitoring/
+labs/9_operators/
+labs/10_routes/ (reuse CRC DNS pattern from labs/ingress/setup.sh: crc ip + txeh)
+labs/11_airgapped/
