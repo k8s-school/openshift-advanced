@@ -3,3 +3,8 @@ validate CI for api-gateway + slides
 validate airgapped on real openshift platform
 slides about oc-mirror or lab???
 
+install oc-mirror/skopeo
+
+how to check podman containers for other users
+
+build tools for openshift?

@@ -5,6 +5,7 @@ metadata:
 spec:
   imageTagMirrors:
   - mirrors:
+    # Openshift CRC is running inside a VM and need access to host
     - ${HOST_IP}:5000
     source: docker.io
     mirrorSourcePolicy: NeverContactSource
