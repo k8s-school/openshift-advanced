@@ -1,4 +1,6 @@
 #!/bin/bash
+# Airgapped deployment — Approach A: transparent mirroring with ImageTagMirrorSet.
+# Run prereqs-registry.sh first (local registry + insecureRegistries patch).
 
 set -euxo pipefail
 
@@ -8,50 +10,53 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 ID="$(whoami)"
 NS="airgapped-$ID"
-RELEASE="nginx"
+RELEASE="nginx-mirror"
 # IP de l'hôte sur le bridge libvirt (virbr0), accessible depuis la VM CRC
 HOST_IP=$(ip -4 addr show virbr0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
 LOCAL_REGISTRY="${HOST_IP}:5000"
-NGINX_IMAGE="docker.io/nginx:$NGINX_VERSION"
 
-ink "Start local registry on 0.0.0.0:5000"
-sudo podman rm -f local-registry 2>/dev/null || true
-sudo podman run -d --name local-registry -p 5000:5000 \
-    -e REGISTRY_STORAGE_DELETE_ENABLED=true \
-    registry:2
-
-ink "Mirror nginx image into local registry"
+ink "Mirror nginx image into local registry, preserving docker.io's implicit library/ namespace"
 skopeo copy \
-    "docker://$NGINX_IMAGE" \
+    "docker://docker.io/nginx:$NGINX_VERSION" \
     "docker://$LOCAL_REGISTRY/library/nginx:$NGINX_VERSION" \
     --dest-tls-verify=false
 
-ink "Allow insecure HTTP access to local registry on cluster nodes"
-oc patch image.config.openshift.io/cluster --type=merge \
-    -p "{\"spec\":{\"registrySources\":{\"insecureRegistries\":[\"$LOCAL_REGISTRY\"]}}}"
-
 ink "Apply ImageTagMirrorSet so cluster nodes redirect docker.io → $LOCAL_REGISTRY (tag-based pulls)"
-export HOST_IP
-envsubst < "$DIR/manifests/image-tag-mirror-set.yaml" | kubectl apply -f -
+cat <<EOF | kubectl apply -f -
+apiVersion: config.openshift.io/v1
+kind: ImageTagMirrorSet
+metadata:
+  name: local-registry-mirror
+spec:
+  imageTagMirrors:
+  - mirrors:
+    - ${HOST_IP}:5000
+    source: docker.io
+    mirrorSourcePolicy: NeverContactSource
+EOF
 
 ink "Wait for MachineConfigPool worker to apply the new mirror config"
 oc wait machineconfigpool/worker \
     --for=condition=Updated \
     --timeout=300s
 
+ink "Verify registries.conf was updated on a worker node"
+WORKER=$(oc get nodes -l node-role.kubernetes.io/worker -o jsonpath='{.items[0].metadata.name}')
+oc debug node/$WORKER -- chroot /host cat /etc/containers/registries.conf
+
 kubectl delete ns -l "airgapped=$ID" --ignore-not-found
 oc new-project "$NS"
 kubectl label ns "$NS" "airgapped=$ID"
 kubectl config set-context --current --namespace="$NS"
 
-ink "Install local nginx chart — ImageTagMirrorSet redirects docker.io → $LOCAL_REGISTRY transparently"
+ink "Install nginx chart unchanged — ImageTagMirrorSet redirects docker.io → $LOCAL_REGISTRY transparently"
 helm install "$RELEASE" "$DIR/../nginx-chart" \
     --namespace "$NS" \
     --values "$DIR/../6_helm_migration/manifests/nginx-values-v2.yaml" \
     --set image.pullPolicy=Always \
     --wait --timeout 120s
 
-ink "Verify pod uses the local mirror image"
+ink "Verify pod image reference is unchanged (still nginx:$NGINX_VERSION) — pull came from the mirror transparently"
 kubectl get pod -l "app=$RELEASE" -o jsonpath='{.items[0].spec.containers[0].image}{"\n"}'
-kubectl describe pod -l "app=$RELEASE" | grep -A5 "Events:"
-sudo podman logs local-registry 2>&1 | grep GET
+kubectl describe pod -l "app=$RELEASE" | grep -A6 "Events:"
+podman logs local-registry 2>&1 | grep GET

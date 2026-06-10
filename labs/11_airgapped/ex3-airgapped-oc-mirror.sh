@@ -1,7 +1,8 @@
 #!/bin/bash
-# Airgapped deployment using oc mirror (v2) to mirror multiple images declaratively.
+# Airgapped deployment — Approach A variant: mirroring via `oc mirror` v2 instead of skopeo.
 # Advantage over skopeo: one config file, state tracking between runs (delta only),
 # scales to dozens of images + operator catalogs in a single pass.
+# Run prereqs-registry.sh first (local registry + insecureRegistries patch).
 
 set -euxo pipefail
 
@@ -17,12 +18,6 @@ HOST_IP=$(ip -4 addr show virbr0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1
 LOCAL_REGISTRY="${HOST_IP}:5000"
 MIRROR_WORKSPACE="/tmp/oc-mirror-workspace"
 
-ink "Start local registry on 0.0.0.0:5000"
-sudo podman rm -f local-registry 2>/dev/null || true
-sudo podman run -d --name local-registry -p 5000:5000 \
-    -e REGISTRY_STORAGE_DELETE_ENABLED=true \
-    registry:2
-
 ink "Mirror nginx + alpine images via oc mirror (declarative, delta-aware)"
 mkdir -p "$MIRROR_WORKSPACE"
 export NGINX_VERSION ALPINE_VERSION
@@ -31,10 +26,6 @@ oc mirror -c /tmp/imageset-config.yaml \
     --workspace "file://$MIRROR_WORKSPACE" \
     --dest-skip-tls \
     "docker://$LOCAL_REGISTRY"
-
-ink "Allow insecure HTTP access to local registry on cluster nodes"
-oc patch image.config.openshift.io/cluster --type=merge \
-    -p "{\"spec\":{\"registrySources\":{\"insecureRegistries\":[\"$LOCAL_REGISTRY\"]}}}"
 
 ink "Apply ImageTagMirrorSet so cluster nodes redirect docker.io → $LOCAL_REGISTRY (tag-based pulls)"
 export HOST_IP
@@ -65,4 +56,4 @@ kubectl get pod -l "app=$RELEASE" -o jsonpath='{range .items[0].spec.containers[
 kubectl describe pod -l "app=$RELEASE" | grep -A10 "Events:"
 
 ink "Verify both images were pulled from local registry"
-sudo podman logs local-registry 2>&1 | grep GET
+podman logs local-registry 2>&1 | grep GET
