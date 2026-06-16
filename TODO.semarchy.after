@@ -1,0 +1,5 @@
+- airgapped: trainer should configure openshift, improve IP management for podman registry (use host ip?)
+- Install skopeo oc-mirror in ktbx and fix .so file pb??
+
+validate CI for api-gateway + slides
+aro
