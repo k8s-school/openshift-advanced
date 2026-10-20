@@ -15,3 +15,6 @@ ink "Run test on policies"
 ink "Success"
 # ink "Run test on computational resources"
 # "$DIR"/4_computational_resources/ci.sh
+ink "Run test on scheduler"
+"$DIR"/5_scheduler/ci.sh
+ink "Success"
