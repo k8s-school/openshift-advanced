@@ -17,16 +17,18 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 ID="$(whoami)"
 NS="airgapped-$ID"
 RELEASE="nginx"
-# IP de l'hôte sur le bridge libvirt (virbr0), accessible depuis la VM CRC
-HOST_IP=$(ip -4 addr show virbr0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+# Host IP on the libvirt bridge of the CRC VM: 'crc' (network-mode system) or virbr0
+HOST_IP=$({ ip -4 -o addr show crc; ip -4 -o addr show virbr0; } 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
 LOCAL_REGISTRY="${HOST_IP}:5000"
-MIRROR_WORKSPACE="/tmp/oc-mirror-workspace"
+# Per-user paths: several trainees share the training server
+MIRROR_WORKSPACE="$HOME/oc-mirror-workspace"
+IMAGESET_CONFIG="$HOME/tmp/imageset-config.yaml"
 
 ink "Mirror nginx + alpine in one pass via oc-mirror v2 (declarative ImageSetConfiguration)"
-mkdir -p "$MIRROR_WORKSPACE"
+mkdir -p "$MIRROR_WORKSPACE" "$(dirname "$IMAGESET_CONFIG")"
 export NGINX_VERSION ALPINE_VERSION
-envsubst < "$DIR/manifests/imageset-config.yaml" > /tmp/imageset-config.yaml
-oc mirror -c /tmp/imageset-config.yaml \
+envsubst < "$DIR/manifests/imageset-config.yaml" > "$IMAGESET_CONFIG"
+oc mirror -c "$IMAGESET_CONFIG" \
     --workspace "file://$MIRROR_WORKSPACE" \
     --dest-tls-verify=false \
     "docker://$LOCAL_REGISTRY" \

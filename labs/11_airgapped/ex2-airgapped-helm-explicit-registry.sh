@@ -12,8 +12,8 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 ID="$(whoami)"
 NS="airgapped-$ID"
 RELEASE="nginx-explicit"
-# IP de l'hôte sur le bridge libvirt (virbr0), accessible depuis la VM CRC
-HOST_IP=$(ip -4 addr show virbr0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+# Host IP on the libvirt bridge of the CRC VM: 'crc' (network-mode system) or virbr0
+HOST_IP=$({ ip -4 -o addr show crc; ip -4 -o addr show virbr0; } 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
 LOCAL_REGISTRY="${HOST_IP}:5000"
 
 ink "Mirror nginx image into local registry, at a path of our own choosing (no library/ needed)"

@@ -11,8 +11,8 @@ DIR=$(cd "$(dirname "$0")"; pwd -P)
 ID="$(whoami)"
 NS="airgapped-$ID"
 RELEASE="nginx-mirror"
-# IP de l'hôte sur le bridge libvirt (virbr0), accessible depuis la VM CRC
-HOST_IP=$(ip -4 addr show virbr0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+# Host IP on the libvirt bridge of the CRC VM: 'crc' (network-mode system) or virbr0
+HOST_IP=$({ ip -4 -o addr show crc; ip -4 -o addr show virbr0; } 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
 LOCAL_REGISTRY="${HOST_IP}:5000"
 
 ink "Mirror nginx image into local registry, preserving docker.io's implicit library/ namespace"
@@ -35,13 +35,14 @@ spec:
     mirrorSourcePolicy: NeverContactSource
 EOF
 
-ink "Wait for MachineConfigPool worker to apply the new mirror config"
-oc wait machineconfigpool/worker \
-    --for=condition=Updated \
-    --timeout=300s
+# Poll the node file: the pool Updated condition can be stale, and always True on CRC
+ink "Wait for the mirror config to reach the node"
+WORKER=$(oc get nodes -l node-role.kubernetes.io/worker -o jsonpath='{.items[0].metadata.name}')
+until oc debug node/$WORKER -- chroot /host cat /etc/containers/registries.conf | grep docker.io | grep -q location; do
+    sleep 5
+done
 
 ink "Verify registries.conf was updated on a worker node"
-WORKER=$(oc get nodes -l node-role.kubernetes.io/worker -o jsonpath='{.items[0].metadata.name}')
 oc debug node/$WORKER -- chroot /host cat /etc/containers/registries.conf
 
 kubectl delete ns -l "airgapped=$ID" --ignore-not-found
