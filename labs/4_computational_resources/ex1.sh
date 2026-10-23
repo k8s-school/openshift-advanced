@@ -3,24 +3,20 @@
 set -e
 set -x
 
-NS="compute"
+# Per-trainee namespace: the cluster may be shared
+ID="${ID:-$(whoami)}"
+NS="compute-$ID"
 
-# GCP specific:
-# NODE="clus0-1"
-
-NODE="kind-worker"
+# Runs on the current context: the first worker node is inspected
+NODE=$(kubectl get nodes -l '!node-role.kubernetes.io/control-plane' -o jsonpath='{.items[0].metadata.name}')
 
 DIR=$(cd "$(dirname "$0")"; pwd -P)
 
-KIND_CONTEXT="kind-kind"
-# Switch back to context kubernetes-admin@kubernetes
-kubectl config use-context "$KIND_CONTEXT"
-
 # Run on a Kubernetes cluster with LimitRange admission control plugin enable
 # see "kubernetes in action" p405
-kubectl delete ns -l "compute=true"
+kubectl delete ns -l "compute=$ID"
 kubectl create namespace "$NS"
-kubectl label ns "$NS" "compute=true"
+kubectl label ns "$NS" "compute=$ID"
 
 kubectl config set-context $(kubectl config current-context) --namespace=$NS
 
@@ -64,7 +60,7 @@ spec:
         memory: 20Mi
 EOF
   kubectl apply -f "/tmp/requests-pod-$i.yaml"
-  if [ $i -neq 4 ]
+  if [ $i -ne 4 ]
   then
     kubectl wait --for=condition=Ready pods "$POD"
     kubectl describe pod "$POD"

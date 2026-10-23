@@ -2,10 +2,12 @@
 
 set -euxo pipefail
 
-kubectl delete ns -l "quota=true"
-NS="quota-object-example"
+# Per-trainee namespace: the cluster may be shared
+ID="${ID:-$(whoami)}"
+kubectl delete ns -l "quota=$ID"
+NS="quota-object-example-$ID"
 kubectl create namespace "$NS"
-kubectl label ns "$NS" "quota=true"
+kubectl label ns "$NS" "quota=$ID"
  
 kubectl apply -f https://k8s.io/examples/admin/resource/quota-objects.yaml --namespace="$NS"
 kubectl get resourcequota object-quota-demo --namespace="$NS" --output=yaml

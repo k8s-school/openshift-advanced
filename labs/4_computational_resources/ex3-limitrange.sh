@@ -4,10 +4,12 @@
 
 set -euxo pipefail
 
-kubectl delete ns -l "limitrange=true"
-NS="constraints-cpu-example"
+# Per-trainee namespace: the cluster may be shared
+ID="${ID:-$(whoami)}"
+kubectl delete ns -l "limitrange=$ID"
+NS="constraints-cpu-example-$ID"
 kubectl create namespace "$NS"
-kubectl label ns "$NS" "limitrange=true"
+kubectl label ns "$NS" "limitrange=$ID"
  
 kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints.yaml --namespace="$NS"
 kubectl get limitrange cpu-min-max-demo-lr --output=yaml --namespace="$NS"
