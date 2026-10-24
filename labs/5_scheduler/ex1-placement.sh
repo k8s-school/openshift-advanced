@@ -188,9 +188,7 @@ ink "Exercise 1: pod anti-affinity"
 deployment nginx 2 "" | kubectl apply -f -
 k rollout status deployment nginx --timeout=120s
 
-# Re-create the Deployment, a rolling update would block on the anti-affinity
-k delete deployment nginx --wait
-deployment nginx 2 "      affinity:
+ANTI_AFFINITY="      affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -199,7 +197,19 @@ deployment nginx 2 "      affinity:
                 operator: In
                 values:
                 - nginx
-            topologyKey: kubernetes.io/hostname" | kubectl apply -f -
+            topologyKey: kubernetes.io/hostname"
+
+# Apply the rule to the running Deployment: the rolling update creates a new pod first,
+# but both usable workers already run an app=nginx pod, so it stays Pending
+deployment nginx 2 "$ANTI_AFFINITY" | kubectl apply -f -
+wait_for 1 60 count_pods nginx Pending
+k get rs -l app=nginx
+[ "$(k get rs -l app=nginx --no-headers | wc -l)" -eq 2 ] || { ink -r "Expected an old and a new ReplicaSet"; exit 1; }
+[ "$(count_pods nginx Running)" -eq 2 ] || { ink -r "Old nginx pods should keep running"; exit 1; }
+
+# Fix it: re-create the Deployment
+k delete deployment nginx --wait
+deployment nginx 2 "$ANTI_AFFINITY" | kubectl apply -f -
 k rollout status deployment nginx --timeout=120s
 k get pods -o wide
 [ "$(count_nodes nginx)" -eq 2 ] || { ink -r "nginx pods are not on 2 different nodes"; exit 1; }
@@ -284,13 +294,12 @@ wait_for 0 120 sh -c "kubectl get pods -n '$NS' -l app=nginx -o wide --no-header
 k rollout status deployment nginx --timeout=120s
 k get pods -l app=nginx -o wide
 
-# Tolerate the maintenance taint for 60 seconds
-deployment infra 2 "$INFRA_TOLERATION
-      - key: maintenance
-        operator: Exists
-        effect: NoExecute
-        tolerationSeconds: 60
-$INFRA_AFFINITY" | kubectl apply -f -
+# Tolerate the maintenance taint for 60 seconds, appended to the existing tolerations
+k patch deployment infra --type=json -p '[{
+  "op": "add",
+  "path": "/spec/template/spec/tolerations/-",
+  "value": {"key": "maintenance", "operator": "Exists", "effect": "NoExecute", "tolerationSeconds": 60}
+}]'
 k rollout status deployment infra --timeout=120s
 # Wait for the old pods to be gone, terminating pods are still in Running phase
 wait_for 2 60 sh -c "kubectl get pods -n '$NS' -l app=infra --no-headers | wc -l"
@@ -307,6 +316,16 @@ done
 k get pods -l app=infra -o wide
 [ "$(pod_nodes infra)" = "$INFRA_NODE" ] || { ink -r "infra pods not rescheduled on $INFRA_NODE"; exit 1; }
 
+# Default tolerations: not-ready and unreachable, NoExecute, 300 seconds
+TOLERATIONS=$(k get pod -l app=nginx -o jsonpath='{.items[0].spec.tolerations}')
+echo "$TOLERATIONS" | jq
+for key in not-ready unreachable; do
+    echo "$TOLERATIONS" | jq -e --arg key "node.kubernetes.io/$key" \
+        'any(.[]; .key == $key and .effect == "NoExecute" and .tolerationSeconds == 300)' > /dev/null || \
+        { ink -r "Missing default toleration for node.kubernetes.io/$key"; exit 1; }
+done
+
+# End of the demo
 kubectl taint node "$MAINTENANCE_NODE" maintenance-
 kubectl taint node "$INFRA_NODE" maintenance-
 ink "Trainer demo: success"

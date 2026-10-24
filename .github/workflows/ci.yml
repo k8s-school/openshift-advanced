@@ -33,3 +33,6 @@ jobs:
       - name: Run test on computational resources
         run: |
           ./labs/4_computational_resources/ci.sh
+      - name: Run test on pod placement
+        run: |
+          ./labs/5_scheduler/ex1-placement.sh -s
