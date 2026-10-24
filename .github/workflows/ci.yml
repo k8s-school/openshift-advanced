@@ -33,6 +33,3 @@ jobs:
       - name: Run test on computational resources
         run: |
           ./labs/4_computational_resources/ci.sh
-      - name: Install prometheus
-        run: |
-          ./labs/B_prometheus/install.sh
