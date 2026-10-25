@@ -18,3 +18,6 @@ ink "Success"
 ink "Run test on scheduler"
 "$DIR"/5_scheduler/ci.sh
 ink "Success"
+ink "Run test on operators"
+"$DIR"/7_operators/ci-openshift.sh
+ink "Success"
