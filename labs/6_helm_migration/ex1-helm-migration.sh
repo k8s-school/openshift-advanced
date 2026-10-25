@@ -80,11 +80,15 @@ fi
 
 ink "Step 1 — ClusterIP service (fixes LoadBalancer quota)"
 ink "Expected failure: nginx runs as root on port 80, blocked by restricted-v2 SCC"
-if helm upgrade --install "$RELEASE" "$CHART" \
+# The chart has no readiness probe: helm --wait may report success while the container
+# runs for a second before crashing, so check the Deployment instead of the helm exit code
+helm upgrade --install "$RELEASE" "$CHART" \
     --namespace "$NS" \
     --values "$DIR/manifests/nginx-values-v1.yaml" \
     --set image.tag="$NGINX_VERSION" \
-    --wait --timeout 30s
+    --wait --timeout 30s || true
+sleep 20
+if kubectl rollout status deployment/"$RELEASE" -n "$NS" --timeout=30s
 then
     ink -r "Unexpected success: SCC should have blocked port 80"
     exit 1
